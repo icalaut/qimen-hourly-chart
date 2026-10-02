@@ -32,6 +32,7 @@ const ziMethodInput = document.querySelector('#zi-method');
 const chartTypeInput = document.querySelector('#chart-type');
 const predictionTopicInput = document.querySelector('#prediction-topic');
 const predictionDirectionInput = document.querySelector('#prediction-direction');
+const predictionPersonStemInput = document.querySelector('#prediction-person-stem');
 const travelInput = document.querySelector('#travel-toggle');
 const personalThreeVictoryInput = document.querySelector('#personal-three-victory-toggle');
 const eightGodInput = document.querySelector('#eight-god-toggle');
@@ -170,6 +171,29 @@ const PREDICTION_TOPICS = {
     { symbol: '生门', role: '财源', kind: 'layer', layer: 'door', value: '生门' },
     { symbol: '生门宫天地盘干', role: '上下盘格局参考', kind: 'lifeDoorPalaceStems' },
   ] },
+  longevity: { label: '寿夭', references: [
+    { symbol: '天冲星', role: '寿数参考；依原书比较落宫远近', kind: 'layer', layer: 'star', value: '天冲' },
+    { symbol: '死门', role: '寿夭参考；依原书比较落宫远近', kind: 'layer', layer: 'door', value: '死门' },
+  ] },
+  release: { label: '起解', references: [
+    { symbol: '值使', role: '与六辛比较生克、旺衰', kind: 'valueDoor' },
+    { symbol: '六辛', role: '解疑用神；查看所临星门', kind: 'stem', value: '辛' },
+    { symbol: '开门', role: '银粮参考；查看同宫凶煞', kind: 'layer', layer: 'door', value: '开门' },
+    { symbol: '生门', role: '银粮参考；查看同宫凶煞', kind: 'layer', layer: 'door', value: '生门' },
+    { symbol: '天蓬星', role: '原文所列凶煞参考', kind: 'layer', layer: 'star', value: '天蓬' },
+    { symbol: '天柱星', role: '六辛所乘之星参考', kind: 'layer', layer: 'star', value: '天柱' },
+  ] },
+  prisonerRelease: { label: '解罪人', references: [
+    { symbol: '当事人年命', role: '年命落宫及所乘天干', kind: 'selectedStem' },
+    { symbol: '六辛', role: '查看与年命、开门的落宫关系', kind: 'stem', value: '辛' },
+    { symbol: '开门', role: '依原文与六辛、年命比较生克', kind: 'layer', layer: 'door', value: '开门' },
+  ] },
+  mediation: { label: '和事', references: [
+    { symbol: '旬首（甲子课例）', role: '按时柱旬首与遁甲六仪定位', kind: 'xunHead' },
+    { symbol: '六庚', role: '书信与一方参考', kind: 'stem', value: '庚' },
+    { symbol: '六丁', role: '书信迟速与一方参考', kind: 'stem', value: '丁' },
+    { symbol: '六丙', role: '和解双方生克及旺衰参考', kind: 'stem', value: '丙' },
+  ] },
   whoGoes: { label: '谁去谁不去', references: [
     { symbol: '年干原宫', role: '所临天盘干', kind: 'pillarStemOriginalPalace', pillar: '年柱' },
   ] },
@@ -204,6 +228,28 @@ const PREDICTION_TOPICS = {
     { symbol: '时干', role: '下级/群众', kind: 'pillarStem', pillar: '時柱' },
     { symbol: '开门', role: '文职工作', kind: 'layer', layer: 'door', value: '开门' },
     { symbol: '杜门', role: '武职/技术工作', kind: 'layer', layer: 'door', value: '杜门' },
+  ] },
+  workVillain: { label: '工作犯小人', references: [
+    { symbol: '月干', role: '当月或单位内部的人；与日干比较冲克', kind: 'pillarStem', pillar: '月柱' },
+    { symbol: '时干', role: '当前事项相关的人；与日干比较冲克', kind: 'pillarStem', pillar: '時柱' },
+    { symbol: '日干', role: '求测者；检查月干、时干是否冲克', kind: 'pillarStem', pillar: '日柱' },
+    { symbol: '玄武', role: '暗中作梗、口舌是非参考', kind: 'layer', layer: 'god', value: '玄武' },
+    { symbol: '腾蛇', role: '纠缠难脱参考', kind: 'layer', layer: 'god', value: '腾蛇' },
+    { symbol: '白虎', role: '强势明面冲突参考', kind: 'layer', layer: 'god', value: '白虎' },
+    { symbol: '太阴', role: '暗中行事参考', kind: 'layer', layer: 'god', value: '太阴' },
+    { symbol: '六合', role: '合伙聚众为难参考', kind: 'layer', layer: 'god', value: '六合' },
+  ] },
+  promotionTransfer: { label: '升迁与调动', references: [
+    { symbol: '日干', role: '求测者；与开门比较生克', kind: 'pillarStem', pillar: '日柱' },
+    { symbol: '开门', role: '工作；克日干主调动，生日干主不易调走', kind: 'layer', layer: 'door', value: '开门' },
+    { symbol: '值符', role: '主管、首领；同宫见丙为权柄参考', kind: 'layer', layer: 'god', value: '值符' },
+    { symbol: '丙', role: '与值符同宫时作官运参考', kind: 'stem', value: '丙' },
+    { symbol: '九天', role: '升迁机会参考', kind: 'layer', layer: 'god', value: '九天' },
+    { symbol: '壬', role: '与九天、驿马同列为变动参考', kind: 'stem', value: '壬' },
+    { symbol: '癸', role: '与九天、驿马同列为变动参考', kind: 'stem', value: '癸' },
+    { symbol: '驿马', role: '临马星主变动；依日支定位', kind: 'yima' },
+    { symbol: '伏吟／反吟', role: '伏吟主不动；反吟主变动', kind: 'patternList' },
+    { symbol: '开门宫空亡', role: '若开门克日干且空亡，原文以填实之月为应期参考', kind: 'openDoorVoid' },
   ] },
   exam: { label: '考试', references: [
     { symbol: '天辅星', role: '招考办公室/辅导', kind: 'layer', layer: 'star', value: '天辅' },
@@ -737,12 +783,15 @@ function updateChartTypeControls() {
   const usesMonthlyScan = travelInput.checked || personalThreeVictoryInput.checked;
   document.querySelector('#prediction-option').hidden = type !== 'shijia';
   const needsPredictionDirection = ['invite', 'migration'].includes(predictionTopicInput.value);
+  const needsPredictionPersonStem = predictionTopicInput.value === 'prisonerRelease';
   document.querySelector('#prediction-direction-option').hidden = type !== 'shijia' || !needsPredictionDirection;
+  document.querySelector('#prediction-person-stem-option').hidden = type !== 'shijia' || !needsPredictionPersonStem;
   document.querySelector('#prediction-direction-label').textContent = traditionalize(
     predictionTopicInput.value === 'migration' ? '迁移方向' : '来人方向',
   );
   predictionTopicInput.disabled = type !== 'shijia';
   predictionDirectionInput.disabled = type !== 'shijia' || !needsPredictionDirection;
+  predictionPersonStemInput.disabled = type !== 'shijia' || !needsPredictionPersonStem;
   document.querySelector('#travel-option').hidden = type !== 'mingpan';
   document.querySelector('#personal-three-victory-option').hidden = type !== 'mingpan';
   document.querySelector('#eight-god-option').hidden = type !== 'mingpan';
@@ -1907,6 +1956,19 @@ function resolvePredictionReference(chart, reference) {
       values = [yearStem, skyStem];
       specialMatches.push({ palaceIndex: originIndex, layer: 'heaven' });
     }
+  } else if (reference.kind === 'xunHead') {
+    const timePillar = simplify(chart['時柱']);
+    const cycleIndex = GANZHI_CYCLE.indexOf(timePillar);
+    if (cycleIndex >= 0) {
+      const xunHead = GANZHI_CYCLE[Math.floor(cycleIndex / 10) * 10];
+      const hiddenStem = XUN_FU_SHOU[xunHead];
+      const originIndex = chart.地盤?.findIndex((value) => simplify(value) === hiddenStem) ?? -1;
+      if (originIndex >= 0) {
+        const heavenStem = simplify(chart.天盤?.[originIndex]);
+        values = [xunHead, hiddenStem, heavenStem].filter((value) => value && value !== '—');
+        specialMatches.push({ palaceIndex: originIndex, layer: 'heaven' });
+      }
+    }
   } else if (reference.kind === 'directionStem') {
     const directionIndex = PALACES.findIndex(({ number }) => Number(number) === Number(predictionDirectionInput.value));
     const skyStem = simplify(chart.天盤?.[directionIndex]);
@@ -1925,8 +1987,34 @@ function resolvePredictionReference(chart, reference) {
       values = ['生门', heavenStem, earthStem].filter((value) => value && value !== '—');
       specialMatches.push({ palaceIndex: lifeDoorIndex, layer: 'heaven' });
     }
+  } else if (reference.kind === 'yima') {
+    const dayBranch = simplify(chart.日柱).slice(-1);
+    const yimaBranch = YIMA_BRANCHES[dayBranch];
+    const palaceNumber = VOID_BRANCH_PALACES[yimaBranch];
+    palaceIndex = PALACES.findIndex(({ number }) => Number(number) === palaceNumber);
+    if (yimaBranch && palaceIndex >= 0) {
+      values = [`驿马（${yimaBranch}）`];
+      specialMatches.push({ palaceIndex, layer: null });
+    }
+  } else if (reference.kind === 'patternList') {
+    values = (chart.格局列表 || [])
+      .filter(({ 格 }) => ['伏吟', '反吟'].includes(simplify(格)))
+      .map(({ 格 }) => simplify(格));
+    if (values.length === 0) values = ['未見伏吟或反吟'];
+  } else if (reference.kind === 'openDoorVoid') {
+    const openDoorIndex = chart.天門?.findIndex((door) => simplify(door) === '开门') ?? -1;
+    if (openDoorIndex >= 0) {
+      const palaceNumber = Number(PALACES[openDoorIndex].number);
+      const voidBranches = [...getVoidBranches(chart.日柱), ...getVoidBranches(chart.時柱)];
+      const isVoid = voidBranches.some((branch) => VOID_BRANCH_PALACES[branch] === palaceNumber);
+      values = [isVoid ? '空亡' : '未空'];
+      specialMatches.push({ palaceIndex: openDoorIndex, layer: null });
+    }
   } else if (reference.kind === 'stem') {
     values = [simplify(reference.value)];
+    layers = ['heaven'];
+  } else if (reference.kind === 'selectedStem') {
+    values = [simplify(predictionPersonStemInput.value)];
     layers = ['heaven'];
   } else if (reference.kind === 'valueDoor') {
     values = [simplify(chart.值使)];
@@ -1997,9 +2085,11 @@ function renderPrediction(chart) {
       return palaceName ? `${palaceName}宫` : '';
     }))].filter(Boolean);
     current.textContent = [resolved.values.join('、'), positions.join('、')].filter(Boolean).join(' · ');
-    if (resolved.matches.length === 0) {
-      current.textContent = traditionalize(['directionStem', 'directionStar'].includes(reference.kind) && !predictionDirectionInput.value
-        ? '请选择方向'
+    if (resolved.matches.length === 0 && reference.kind !== 'patternList') {
+      current.textContent = traditionalize(reference.kind === 'selectedStem' && !predictionPersonStemInput.value
+        ? '请选择年命天干'
+        : ['directionStem', 'directionStar'].includes(reference.kind) && !predictionDirectionInput.value
+          ? '请选择方向'
         : '此盘未排出对应用神');
     }
     row.append(target, role, current);
@@ -2132,6 +2222,7 @@ predictionTopicInput.addEventListener('change', () => {
   renderPrediction(lastRenderedChart);
 });
 predictionDirectionInput.addEventListener('change', () => renderPrediction(lastRenderedChart));
+predictionPersonStemInput.addEventListener('change', () => renderPrediction(lastRenderedChart));
 travelInput.addEventListener('change', () => {
   updateChartTypeControls();
   document.querySelector('#travel-month-section').hidden = true;
