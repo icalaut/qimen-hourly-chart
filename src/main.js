@@ -1755,6 +1755,7 @@ function renderPalaces(chart) {
   PALACES.forEach((palace, index) => {
     const cell = document.createElement('article');
     cell.className = `palace${index === 4 ? ' center' : ''}`;
+    cell.dataset.element = PALACE_ELEMENTS[Number(palace.number)];
     const head = document.createElement('div');
     head.className = 'palace-head';
     const number = document.createElement('span');
@@ -1857,6 +1858,7 @@ function renderFlightCharts(charts) {
     PALACES.forEach((palace, index) => {
       const cell = document.createElement('div');
       cell.className = `flight-palace${index === 4 ? ' center' : ''}`;
+      cell.dataset.element = PALACE_ELEMENTS[Number(palace.number)];
       const heading = document.createElement('div');
       heading.className = 'flight-palace-header';
       const gua = document.createElement('span');

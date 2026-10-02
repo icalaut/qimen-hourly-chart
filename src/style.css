@@ -14,6 +14,11 @@
   --jade: #4d7a68;
   --vermilion: #bd4d36;
   --gold: #b58b42;
+  --element-wood-wash: #edf5ee;
+  --element-fire-wash: #faefeb;
+  --element-earth-wash: #f4f0e7;
+  --element-metal-wash: #f7f2e6;
+  --element-water-wash: #edf3f7;
 }
 
 * { box-sizing: border-box; }
@@ -294,6 +299,11 @@ input:focus, select:focus { border-color: var(--forest); box-shadow: 0 0 0 3px r
   overflow: hidden;
 }
 .palace.center { background: #f1f4ed; }
+:is(.palace, .flight-palace)[data-element='wood'] { background: var(--element-wood-wash); }
+:is(.palace, .flight-palace)[data-element='fire'] { background: var(--element-fire-wash); }
+:is(.palace, .flight-palace)[data-element='earth'] { background: var(--element-earth-wash); }
+:is(.palace, .flight-palace)[data-element='metal'] { background: var(--element-metal-wash); }
+:is(.palace, .flight-palace)[data-element='water'] { background: var(--element-water-wash); }
 .palace-head { position: absolute; z-index: 1; top: 5px; right: 7px; left: 7px; display: flex; justify-content: space-between; color: #89938a; font: 10px 'DM Mono', monospace; }
 .palace-name { display: none; }
 .palace-layers { position: absolute; inset: 24px 5px 21px; display: grid; grid-template: repeat(3, minmax(0, 1fr)) / repeat(3, minmax(0, 1fr)); gap: 1px; }
