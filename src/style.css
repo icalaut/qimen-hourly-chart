@@ -14,11 +14,11 @@
   --jade: #4d7a68;
   --vermilion: #bd4d36;
   --gold: #b58b42;
-  --element-wood-wash: #edf5ee;
-  --element-fire-wash: #faefeb;
-  --element-earth-wash: #f4f0e7;
-  --element-metal-wash: #f7f2e6;
-  --element-water-wash: #edf3f7;
+  --element-wood-wash: #e7f2e8;
+  --element-fire-wash: #fbe9e7;
+  --element-earth-wash: #f1e7dc;
+  --element-metal-wash: #fbf3dc;
+  --element-water-wash: #e8f3fa;
 }
 
 * { box-sizing: border-box; }
