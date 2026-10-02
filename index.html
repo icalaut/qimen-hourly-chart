@@ -12,7 +12,7 @@
     <title>奇门遁甲排盘</title>
     <link rel="stylesheet" href="./src/style.css?v=20261003-sticky-parameters-fit" />
     <script src="https://cdn.jsdelivr.net/npm/qimen-dunjia@3.1.0/dist/qimen.standalone.min.js"></script>
-    <script type="module" src="./src/main.js?v=20261002-time-chart-prediction-7"></script>
+    <script type="module" src="./src/main.js?v=20261003-fixed-chart-methods"></script>
   </head>
   <body>
     <div class="page-shell">
@@ -187,18 +187,6 @@
                 <select id="chart-hour" name="hour" required></select>
                 <button class="next-shichen-button" id="next-shichen-button" type="button" aria-label="下一个时辰" title="下一个时辰">›</button>
               </div>
-
-              <label class="field-label" id="ju-method-label" for="ju-method">时盘定局法</label>
-              <select id="ju-method" name="method">
-                <option value="拆補">拆补法</option>
-                <option value="符頭" selected>符头法 / 置闰法（超神接气）</option>
-              </select>
-
-              <label class="field-label" for="zi-method">夜子时换日</label>
-              <select id="zi-method" name="nightZi">
-                <option value="次日">子初换日（次日）</option>
-                <option value="當日">子正换日（当日）</option>
-              </select>
 
               <div class="button-row">
                 <button class="generate-button" type="submit">

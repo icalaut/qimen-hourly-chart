@@ -31,11 +31,11 @@ const BRANCHES = [
   ['子', 0], ['丑', 1], ['寅', 3], ['卯', 5], ['辰', 7], ['巳', 9],
   ['午', 11], ['未', 13], ['申', 15], ['酉', 17], ['戌', 19], ['亥', 21],
 ];
+const DEFAULT_JU_METHOD = '符頭';
+const DEFAULT_ZI_METHOD = '次日';
 
 const dateInput = document.querySelector('#chart-date');
 const hourInput = document.querySelector('#chart-hour');
-const methodInput = document.querySelector('#ju-method');
-const ziMethodInput = document.querySelector('#zi-method');
 const chartTypeInput = document.querySelector('#chart-type');
 const predictionTopicInput = document.querySelector('#prediction-topic');
 const predictionDirectionInput = document.querySelector('#prediction-direction');
@@ -604,8 +604,8 @@ function makeLayerChart(source, type, timeChart) {
 
 async function generateFlightCharts(datetime) {
   const timeChart = window.Qimen.chartToObject(window.Qimen.generateChartByDatetime(datetime, {
-    定局法: methodInput.value,
-    夜子時: ziMethodInput.value,
+    定局法: DEFAULT_JU_METHOD,
+    夜子時: DEFAULT_ZI_METHOD,
   }));
   lunarEnginePromise ||= import(LUNAR_ENGINE_URL);
   const { Solar } = await lunarEnginePromise;
@@ -732,8 +732,8 @@ function resolveSolarYear(calendarYear, yearPillar) {
 
 async function generateByChartType(type, datetime) {
   const timeChart = window.Qimen.chartToObject(window.Qimen.generateChartByDatetime(datetime, {
-    定局法: methodInput.value,
-    夜子時: ziMethodInput.value,
+    定局法: DEFAULT_JU_METHOD,
+    夜子時: DEFAULT_ZI_METHOD,
   }));
 
   if (type === 'shijia') {
@@ -800,7 +800,6 @@ function applyStarShift(chart, steps) {
 function updateChartTypeControls() {
   const type = chartTypeInput.value;
   const needsHour = ['mingpan', 'yuejia', 'shijia'].includes(type);
-  const usesHourlyEngine = ['mingpan', 'shijia'].includes(type);
   const usesMonthlyScan = travelInput.checked || personalThreeVictoryInput.checked;
   document.querySelector('#prediction-option').hidden = type !== 'shijia';
   const needsPredictionDirection = ['invite', 'migration'].includes(predictionTopicInput.value);
@@ -838,10 +837,6 @@ function updateChartTypeControls() {
   hourInput.disabled = !needsHour;
   document.querySelector('#previous-shichen-button').hidden = !needsHour;
   document.querySelector('#next-shichen-button').hidden = !needsHour;
-  document.querySelector('#ju-method-label').hidden = !usesHourlyEngine;
-  methodInput.hidden = !usesHourlyEngine;
-  document.querySelector('label[for="zi-method"]').hidden = !usesHourlyEngine;
-  ziMethodInput.hidden = !usesHourlyEngine;
 }
 
 async function getMonthlyTravelGuidance(monthValue) {
@@ -1388,8 +1383,8 @@ async function findMonthlyTravelDates(monthValue, hour, natalChart) {
         const endHour = (centerHour + 1) % 24;
         const timeDatetime = `${year}${pad(month)}${pad(day)}${pad(centerHour)}`;
         const timeChart = window.Qimen.chartToObject(window.Qimen.generateChartByDatetime(timeDatetime, {
-          定局法: methodInput.value,
-          夜子時: ziMethodInput.value,
+          定局法: DEFAULT_JU_METHOD,
+          夜子時: DEFAULT_ZI_METHOD,
         }));
         if (findPalaceIndex(timeChart, category.timeField, category.timeValue) === category.targetIndex) {
           category.hours.push(`${pad(startHour)}:00–${pad(endHour)}:00${centerHour === 0 ? '＊' : ''}`);
@@ -1438,8 +1433,8 @@ async function findEightGodActivationDates(monthValue, hour, targetGod) {
       const endHour = (centerHour + 1) % 24;
       const timeDatetime = `${year}${pad(month)}${pad(day)}${pad(centerHour)}`;
       const timeChart = window.Qimen.chartToObject(window.Qimen.generateChartByDatetime(timeDatetime, {
-        定局法: methodInput.value,
-        夜子時: ziMethodInput.value,
+        定局法: DEFAULT_JU_METHOD,
+        夜子時: DEFAULT_ZI_METHOD,
       }));
       const timeIndex = findPalaceIndex(timeChart, '八神', targetGod);
       if (timeIndex === yearIndex && simplify(timeChart.八神?.[timeIndex]) === targetValue) {
@@ -1464,7 +1459,7 @@ async function findEightGodActivationDates(monthValue, hour, targetGod) {
 }
 
 function getEightGodActivationDates(monthValue, hour, targetGod) {
-  const cacheKey = [monthValue, simplify(targetGod), methodInput.value, ziMethodInput.value].join('|');
+  const cacheKey = [monthValue, simplify(targetGod), DEFAULT_JU_METHOD, DEFAULT_ZI_METHOD].join('|');
   if (!eightGodScanCache.has(cacheKey)) {
     const scan = findEightGodActivationDates(monthValue, hour, targetGod).catch((error) => {
       eightGodScanCache.delete(cacheKey);
@@ -2217,7 +2212,7 @@ function renderChart(chart, datetime, lunarDate) {
   lunarLabel.hidden = false;
   document.querySelector('#result-eyebrow').textContent = traditionalize(`${chart.節氣 || chart.盤型 || '时盘'} · ${chart.三元 || '三元未明'}`);
   document.querySelector('#result-title').textContent = traditionalize(`${chart.陰陽 || ''}遁${chart.局數 || ''}局`);
-  document.querySelector('#method-tag').textContent = traditionalize(chart.盤型 || `${chart.定局法 || methodInput.value}法`);
+  document.querySelector('#method-tag').textContent = traditionalize(chart.盤型 || `${chart.定局法 || DEFAULT_JU_METHOD}法`);
   document.querySelector('#plate-stamp').textContent = traditionalize(chart.盤型 === '命盘' ? '生辰 · 时家转盘' : `${chart.盤型 || '时盘'} · 转盘`);
 
   const pillars = document.querySelector('#pillars');
@@ -2233,9 +2228,6 @@ function renderChart(chart, datetime, lunarDate) {
   renderHub(chart);
   renderInsights(chart);
   document.querySelector('#source-note').textContent = traditionalize(chart.展示說明 || '时家盘由 qimen-dunjia 计算库生成；时刻按 UTC+8 标准时解释，子时可切换换日口径。');
-  if (chart.落於夜子時) {
-    document.querySelector('#zi-method').setAttribute('aria-description', `当前选择：日柱算${chart.夜子時}`);
-  }
   errorMessage.hidden = true;
   emptyState.hidden = true;
   result.hidden = false;
