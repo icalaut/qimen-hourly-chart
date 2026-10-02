@@ -327,12 +327,12 @@ input:focus, select:focus { border-color: var(--forest); box-shadow: 0 0 0 3px r
 .layer.god > span:first-child, .layer.star > .star-main-value { writing-mode: vertical-rl; text-orientation: upright; }
 .layer.god { grid-area: 2 / 3; }
 .layer.star { grid-area: 2 / 1; }
-.nine-star-phase { display: block; flex: 0 0 6px; height: 6px; color: #69746c; font: 6px/6px 'Noto Serif TC', serif; writing-mode: horizontal-tb; white-space: nowrap; }
-.layer.star.with-tianqin { display: grid; grid-template: 6px minmax(0, 1fr) / repeat(2, minmax(0, 1fr)); justify-items: center; align-items: start; gap: 0 1px; }
+.nine-star-phase { display: block; flex: 0 0 8px; height: 8px; color: #69746c; font: 8px/8px 'Noto Serif TC', serif; writing-mode: horizontal-tb; white-space: nowrap; }
+.layer.star.with-tianqin { display: grid; grid-template: 8px minmax(0, 1fr) / repeat(2, minmax(0, 1fr)); justify-items: center; align-items: start; gap: 0 1px; }
 .layer.star.with-tianqin .nine-star-phase { grid-area: 1 / 1 / 2 / 3; }
 .layer.star.with-tianqin .star-main-value { grid-area: 2 / 1; }
 .layer.star.with-tianqin .tianqin-star-companion { grid-area: 2 / 2; }
-.tianqin-star-companion { writing-mode: vertical-rl; text-orientation: upright; font-size: 6px; line-height: 1; }
+.tianqin-star-companion { writing-mode: vertical-rl; text-orientation: upright; font-size: 8px; line-height: 1; }
 .layer.star.with-tianqin .layer-label { display: none; }
 .layer.door { grid-area: 2 / 2; border: 3px solid #92928d; color: var(--vermilion); background: rgb(255 255 255 / 82%); font-size: 20px; font-weight: 700; }
 .layer.door:not([data-element]) { color: #808080; }
@@ -341,9 +341,9 @@ input:focus, select:focus { border-color: var(--forest); box-shadow: 0 0 0 3px r
 .layer.heaven { color: #42526a; }
 .layer.heaven { grid-area: 1 / 2; }
 .layer.heaven.with-tianqin-stem { flex-direction: row; align-items: center; justify-content: center; gap: 1px; }
-.tianqin-stem-companion { writing-mode: vertical-rl; text-orientation: upright; font-size: 6px; line-height: 1; }
+.tianqin-stem-companion { writing-mode: vertical-rl; text-orientation: upright; font-size: 8px; line-height: 1; }
 .layer-value-content, .tianqin-stem-content { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 1px; min-width: 0; }
-.stem-longevity { display: block; color: #69746c; font: 6px/6px 'Noto Serif TC', serif; white-space: nowrap; }
+.stem-longevity { display: block; color: #69746c; font: 8px/8px 'Noto Serif TC', serif; white-space: nowrap; }
 .layer.earth { color: #202d26; font-weight: 600; }
 .layer.earth { grid-area: 3 / 2; }
 .layer.matched-stem-layer { gap: 0; }
@@ -401,9 +401,9 @@ input:focus, select:focus { border-color: var(--forest); box-shadow: 0 0 0 3px r
   .topbar-note { font-size: 10px; }
   .controls { padding: 20px 16px; }
   .chart-area { padding: 20px 12px; }
-  .chart-frame { aspect-ratio: auto; grid-template-columns: 36px repeat(3, minmax(0, 1fr)) 36px; grid-template-rows: 42px repeat(3, minmax(0, 1fr)) 42px; }
+  .chart-frame { aspect-ratio: auto; grid-template-columns: 36px repeat(3, minmax(0, 1fr)) 36px; grid-template-rows: 48px repeat(3, minmax(0, 1fr)) 48px; }
   .frame-shichen { gap: 2px; }
-  .frame-shichen b { font-size: 14px; }
+  .frame-shichen b { font-size: 15px; }
   .frame-shichen small { font-size: 7px; }
   .frame-shichen .frame-compass { font-size: 7px; line-height: 1.15; white-space: normal; }
   .prediction-list { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 8px; }
@@ -417,18 +417,18 @@ input:focus, select:focus { border-color: var(--forest); box-shadow: 0 0 0 3px r
   .palace { min-height: 0; aspect-ratio: 1; padding: 0; }
   .palace-layers { inset: 18px 2px 18px; }
   .palace-head { font-size: 9px; }
-  .layer { font-size: 10px; }
+  .layer { font-size: 11px; line-height: 0.95; }
   .layer-label { display: none; }
   .layer.door { border-width: 2px; font-size: 18px; }
-  .layer { font-size: 10px; }
+  .layer { font-size: 11px; line-height: 0.95; }
   .layer-label { font-size: 8px; }
   .palace { display: grid; grid-template-rows: 14px minmax(62px, 1fr) auto; row-gap: 2px; min-height: 112px; aspect-ratio: auto; padding: 3px 2px; }
   .palace-head { position: relative; top: auto; right: auto; left: auto; }
   .palace-layers { position: relative; inset: auto; width: 60px; height: 60px; min-height: 0; margin: 0 auto; grid-template: repeat(3, minmax(0, 1fr)) / repeat(3, minmax(0, 1fr)); }
   .layer { width: 100%; height: 100%; }
-  .layer.door { border-width: 1px; padding-top: 0; font-size: 16px; }
-  .layer.star.with-tianqin { width: 30px; gap: 1px; }
-  .layer.heaven.with-tianqin-stem { width: 28px; gap: 1px; }
+  .layer.door { border-width: 1px; padding-top: 0; font-size: 18px; }
+  .layer.star.with-tianqin { width: 34px; gap: 1px; grid-template-rows: 8px minmax(0, 1fr); }
+  .layer.heaven.with-tianqin-stem { width: 32px; gap: 1px; }
   .matched-stem { flex-basis: 18px; width: 18px; height: 18px; }
   .palace-markers { position: relative; right: auto; bottom: auto; left: auto; display: grid; grid-template-columns: minmax(0, 1fr); gap: 2px; max-height: none; overflow: visible; align-content: flex-start; }
   .palace-marker { padding: 1px 2px; font-size: 8px; line-height: 1.2; white-space: normal; overflow-wrap: anywhere; }
@@ -440,10 +440,18 @@ input:focus, select:focus { border-color: var(--forest); box-shadow: 0 0 0 3px r
 }
 
 @media (min-width: 381px) and (max-width: 480px) {
-  .palace { grid-template-rows: 14px minmax(70px, 1fr) auto; }
-  .palace-layers { width: 68px; height: 68px; }
-  .layer { font-size: 11px; }
-  .layer.door { font-size: 18px; }
+  .palace { grid-template-rows: 14px minmax(80px, 1fr) auto; }
+  .palace-layers { width: 78px; height: 78px; }
+  .layer { font-size: 13px; line-height: 0.95; }
+  .layer.door { font-size: 20px; }
+}
+
+@media (min-width: 1200px) {
+  .layer { width: 44px; height: 44px; font-size: 16px; line-height: 1; }
+  .layer.door { font-size: 28px; }
+  .nine-star-phase, .stem-longevity { font-size: 9px; line-height: 9px; }
+  .nine-star-phase { flex-basis: 9px; height: 9px; }
+  .layer.star.with-tianqin { grid-template-rows: 9px minmax(0, 1fr); }
 }
 
 @media (prefers-reduced-motion: reduce) {
