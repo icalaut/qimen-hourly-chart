@@ -302,6 +302,7 @@ function shiftStepLabel(steps) {
 let layerEnginePromise;
 let lunarEnginePromise;
 let traditionalizerPromise;
+const eightGodScanCache = new Map();
 let hasGeneratedNatalChart = false;
 let lastRenderedChart = null;
 let traditionalize = (value) => String(value ?? '—');
@@ -1442,6 +1443,18 @@ async function findEightGodActivationDates(monthValue, hour, targetGod) {
   return matches;
 }
 
+function getEightGodActivationDates(monthValue, hour, targetGod) {
+  const cacheKey = [monthValue, simplify(targetGod), methodInput.value, ziMethodInput.value].join('|');
+  if (!eightGodScanCache.has(cacheKey)) {
+    const scan = findEightGodActivationDates(monthValue, hour, targetGod).catch((error) => {
+      eightGodScanCache.delete(cacheKey);
+      throw error;
+    });
+    eightGodScanCache.set(cacheKey, scan);
+  }
+  return eightGodScanCache.get(cacheKey);
+}
+
 function renderEightGodActivation(monthValue, targetGod, matches) {
   const section = document.querySelector('#eight-god-section');
   const container = document.querySelector('#eight-god-results');
@@ -2192,7 +2205,7 @@ async function generateChart(event) {
     const monthlyGuidance = scanMonth && travelInput.checked ? await getMonthlyTravelGuidance(scanMonth) : [];
     renderTravelMonth(scanMonth, monthlyMatches, personalThreeVictoryInput.checked ? 'personalThreeVictory' : 'travel', monthlyGuidance);
     const eightGodMatches = eightGodMonth
-      ? await findEightGodActivationDates(eightGodMonth, selectedHour, eightGodTargetInput.value)
+      ? await getEightGodActivationDates(eightGodMonth, selectedHour, eightGodTargetInput.value)
       : [];
     renderEightGodActivation(eightGodMonth, eightGodTargetInput.value, eightGodMatches);
     const flightCharts = await generateFlightCharts(datetime);
