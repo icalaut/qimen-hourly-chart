@@ -1762,7 +1762,6 @@ function renderPalaces(chart) {
   const tianqinIndex = chart.九星?.findIndex((star) => simplify(star) === '天禽') ?? -1;
   const tianqinStem = tianqinIndex >= 0 ? chart.天盤?.[tianqinIndex] : undefined;
   const tianqinStemMatches = getStemMatches(tianqinStem);
-  const tianqinStemStages = getStemTwelveStages(tianqinStem, Number(PALACES[tianqinIndex]?.number));
 
   PALACES.forEach((palace, index) => {
     const cell = document.createElement('article');
@@ -1815,13 +1814,6 @@ function renderPalaces(chart) {
         const stemCompanion = document.createElement('span');
         const stemCompanionGroup = document.createElement('span');
         stemCompanionGroup.className = 'tianqin-stem-content';
-        if (tianqinStemStages.length) {
-          const strengthLabel = document.createElement('span');
-          strengthLabel.className = 'stem-longevity';
-          strengthLabel.textContent = tianqinStemStages.map(({ stage }) => stage).join('·');
-          strengthLabel.title = `天禽天盘干十二长生（${tianqinStemStages.map(({ branch, stage }) => `${branch}${stage}`).join('、')}）`;
-          stemCompanionGroup.append(strengthLabel);
-        }
         stemCompanion.className = `tianqin-element tianqin-stem-companion${tianqinStemMatches.length ? ` matched-stem ${tianqinStemMatches.map((pillar) => `${pillar}-stem-match`).join(' ')}` : ''}`;
         if (tianqinStemMatches.length) {
           stemCompanion.title = `匹配${tianqinStemMatches.map((pillar) => STEM_MATCH_LABELS[pillar]).join('、')}`;
