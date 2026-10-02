@@ -333,6 +333,8 @@ input:focus, select:focus { border-color: var(--forest); box-shadow: 0 0 0 3px r
 .matched-stem { display: grid; place-items: center; flex: 0 0 22px; width: 22px; height: 22px; border: 1px solid var(--vermilion); border-radius: 50%; }
 .matched-stem.hour-stem-match { border-color: #e60012; }
 .matched-stem.day-stem-match { border-color: #1689c7; }
+.matched-stem.hour-xun-stem-match { border-color: #e60012; }
+.matched-stem.day-xun-stem-match { border-color: #1689c7; }
 .matched-stem.hour-stem-match.day-stem-match { box-shadow: 0 0 0 1px #1689c7; }
 .tianqin-stem-companion.matched-stem { flex-basis: 10px; width: 10px; height: 10px; border-width: 1px; }
 .layer[data-element='wood'], .frame-shichen[data-element='wood'], .frame-shichen .frame-compass[data-element='wood'], .tianqin-element[data-element='wood'] { color: #008f5a; }

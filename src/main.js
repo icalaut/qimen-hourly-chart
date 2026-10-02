@@ -19,6 +19,12 @@ const PALACE_HIDDEN_BRANCHES = { 1: ['子'], 2: ['未', '申'], 3: ['卯'], 4: [
 const TWELVE_STAGE_BRANCHES = ['长生', '沐浴', '冠带', '临官', '帝旺', '衰', '病', '死', '墓', '绝', '胎', '养'];
 const STEM_LONGEVITY_STARTS = { 甲: '亥', 乙: '午', 丙: '寅', 丁: '酉', 戊: '寅', 己: '酉', 庚: '巳', 辛: '子', 壬: '申', 癸: '卯' };
 const YANG_STEMS = new Set(['甲', '丙', '戊', '庚', '壬']);
+const STEM_MATCH_LABELS = {
+  hour: '時柱天干',
+  day: '日柱天干',
+  'hour-xun': '時柱旬首符首',
+  'day-xun': '日柱旬首符首',
+};
 
 const BRANCHES = [
   ['子', 0], ['丑', 1], ['寅', 3], ['卯', 5], ['辰', 7], ['巳', 9],
@@ -1185,7 +1191,7 @@ function makeLayer(className, label, value, matchedPillars = [], longevityStages
   const name = document.createElement('span');
   if (matchedPillars.length) {
     name.className = `matched-stem ${matchedPillars.map((pillar) => `${pillar}-stem-match`).join(' ')}`;
-    name.title = `匹配${matchedPillars.map((pillar) => `${pillar === 'hour' ? '时' : '日'}柱天干`).join('、')}`;
+    name.title = `匹配${matchedPillars.map((pillar) => STEM_MATCH_LABELS[pillar]).join('、')}`;
   }
   const renderedValue = traditionalize(value);
   if (className === 'star') name.classList.add('star-main-value');
@@ -1729,11 +1735,15 @@ function renderPalaces(chart) {
     || chart.天門?.[4];
   const hourStem = simplify(chart.時柱?.[0]);
   const dayStem = simplify(chart.日柱?.[0]);
+  const hourXunStem = XUN_FU_SHOU[simplify(chart.時柱)];
+  const dayXunStem = XUN_FU_SHOU[simplify(chart.日柱)];
   const getStemMatches = (value) => {
     const stem = simplify(value);
     const matches = [];
     if (hourStem !== '—' && stem === hourStem) matches.push('hour');
     if (dayStem !== '—' && stem === dayStem) matches.push('day');
+    if (hourXunStem && stem === hourXunStem) matches.push('hour-xun');
+    if (dayXunStem && stem === dayXunStem) matches.push('day-xun');
     return matches;
   };
   const tianruiIndex = chart.九星?.findIndex((star) => simplify(star) === '天芮') ?? -1;
@@ -1794,7 +1804,7 @@ function renderPalaces(chart) {
         }
         stemCompanion.className = `tianqin-element tianqin-stem-companion${tianqinStemMatches.length ? ` matched-stem ${tianqinStemMatches.map((pillar) => `${pillar}-stem-match`).join(' ')}` : ''}`;
         if (tianqinStemMatches.length) {
-          stemCompanion.title = `匹配${tianqinStemMatches.map((pillar) => `${pillar === 'hour' ? '时' : '日'}柱天干`).join('、')}`;
+          stemCompanion.title = `匹配${tianqinStemMatches.map((pillar) => STEM_MATCH_LABELS[pillar]).join('、')}`;
         }
         stemCompanion.textContent = traditionalize(tianqinStem);
         const stemElement = STEM_ELEMENTS[simplify(tianqinStem)[0]];
