@@ -1765,7 +1765,8 @@ function renderPalaces(chart) {
     if (index !== 4) {
       const elementLabel = document.createElement('span');
       elementLabel.className = 'palace-element-label';
-      elementLabel.textContent = ELEMENT_GLYPHS[PALACE_ELEMENTS[Number(palace.number)]];
+      elementLabel.dataset.element = cell.dataset.element;
+      elementLabel.textContent = ELEMENT_GLYPHS[cell.dataset.element];
       head.append(elementLabel);
     }
 
