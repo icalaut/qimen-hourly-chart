@@ -73,6 +73,22 @@ const GANZHI_CYCLE = Array.from({ length: 60 }, (_, index) => `${STEMS[index % 1
 const LUO_SHU_FLIGHT_ORDER = [4, 8, 5, 6, 1, 7, 2, 3, 0];
 const FLYING_STAR_NAMES = ['', '一白', '二黑', '三碧', '四綠', '五黃', '六白', '七赤', '八白', '九紫'];
 const CIRCLED_FLYING_STAR_NUMBERS = new Set([1, 9, 8, 6]);
+const HEXAGRAM_TRIGRAM_ORDER = ['坤', '艮', '坎', '巽', '震', '离', '兑', '乾'];
+const HEXAGRAM_TRIGRAM_BY_NUMBER = { 1: '乾', 2: '兑', 3: '离', 4: '震', 5: '巽', 6: '坎', 7: '艮', 8: '坤' };
+const HEXAGRAM_TRIGRAM_LINES = { 乾: '111', 兑: '110', 离: '101', 震: '100', 巽: '011', 坎: '010', 艮: '001', 坤: '000' };
+const HEXAGRAM_NUMBER_BY_LINES = Object.fromEntries(Object.entries(HEXAGRAM_TRIGRAM_LINES).map(([trigram, lines]) => [lines, trigram]));
+const HEXAGRAM_NAMES = [
+  ['坤为地', '山地剥', '水地比', '风地观', '雷地豫', '火地晋', '泽地萃', '天地否'],
+  ['地山谦', '艮为山', '水山蹇', '风山渐', '雷山小过', '火山旅', '泽山咸', '天山遯'],
+  ['地水师', '山水蒙', '坎为水', '风水涣', '雷水解', '火水未济', '泽水困', '天水讼'],
+  ['地风升', '山风蛊', '水风井', '巽为风', '雷风恒', '火风鼎', '泽风大过', '天风姤'],
+  ['地雷复', '山雷颐', '水雷屯', '风雷益', '震为雷', '火雷噬嗑', '泽雷随', '天雷无妄'],
+  ['地火明夷', '山火贲', '水火既济', '风火家人', '雷火丰', '离为火', '泽火革', '天火同人'],
+  ['地泽临', '山泽损', '水泽节', '风泽中孚', '雷泽归妹', '火泽睽', '兑为泽', '天泽履'],
+  ['地天泰', '山天大畜', '水天需', '风天小畜', '雷天大壮', '火天大有', '泽天夬', '乾为天'],
+];
+const NINE_STAR_TRIGRAM_NUMBERS = { 天心: 1, 天柱: 2, 天英: 3, 天冲: 4, 天辅: 5, 天蓬: 6, 天任: 7, 天芮: 8 };
+const EIGHT_DOOR_TRIGRAM_NUMBERS = { 开门: 1, 惊门: 2, 景门: 3, 伤门: 4, 杜门: 5, 休门: 6, 生门: 7, 死门: 8 };
 const DAY_STAR_ANCHORS = [
   { term: '冬至', center: 1, direction: 1 },
   { term: '雨水', center: 7, direction: 1 },
@@ -1824,6 +1840,31 @@ function renderPalaces(chart) {
     const name = document.createElement('div');
     name.className = 'palace-name';
     name.textContent = traditionalize(palace.name);
+    const hexagramData = index === 4 ? null : getPalaceHexagram(chart, index);
+    const hexagram = hexagramData ? document.createElement('div') : null;
+    if (hexagram && hexagramData) {
+      hexagram.className = 'palace-hexagram';
+      hexagram.title = traditionalize(
+        `上卦${hexagramData.upperTrigram}（${hexagramData.upperNumber}）下卦${hexagramData.lowerTrigram}（${hexagramData.lowerNumber}）；${hexagramData.upperNumber}+${hexagramData.lowerNumber}+宫${palace.number}=${hexagramData.sum}，第${hexagramData.movingLine}爻动；互卦${hexagramData.mutualName}，变卦${hexagramData.changedName}`,
+      );
+      const hexagramName = document.createElement('span');
+      hexagramName.className = 'palace-hexagram-name';
+      hexagramName.textContent = traditionalize(hexagramData.name);
+      const lineDiagram = document.createElement('span');
+      lineDiagram.className = 'palace-hexagram-lines';
+      for (let lineNumber = 6; lineNumber >= 1; lineNumber -= 1) {
+        const line = document.createElement('span');
+        const isYang = hexagramData.lines[lineNumber - 1] === '1';
+        line.className = `hexagram-line ${isYang ? 'yang' : 'yin'}${lineNumber === hexagramData.movingLine ? ' moving' : ''}`;
+        if (lineNumber === hexagramData.movingLine) {
+          const movingDot = document.createElement('i');
+          movingDot.className = 'hexagram-moving-dot';
+          line.append(movingDot);
+        }
+        lineDiagram.append(line);
+      }
+      hexagram.append(hexagramName, lineDiagram);
+    }
     const layers = document.createElement('div');
     layers.className = 'palace-layers';
     const starLayer = makeLayer('star', '星', chart.九星?.[index]);
@@ -1883,9 +1924,47 @@ function renderPalaces(chart) {
       badge.title = traditionalize(marker.title);
       markers.append(badge);
     });
-    cell.append(head, name, layers, markers);
+    cell.append(head, name);
+    if (hexagram) cell.append(hexagram);
+    cell.append(layers, markers);
     grid.append(cell);
   });
+}
+
+function getPalaceHexagram(chart, palaceIndex) {
+  const starName = simplify(chart.九星?.[palaceIndex]);
+  const doorName = simplify(chart.天門?.[palaceIndex]);
+  const upperNumber = NINE_STAR_TRIGRAM_NUMBERS[starName];
+  const lowerNumber = EIGHT_DOOR_TRIGRAM_NUMBERS[doorName];
+  const palaceNumber = Number(PALACES[palaceIndex]?.number);
+  if (!upperNumber || !lowerNumber || !palaceNumber) return null;
+
+  const upperTrigram = HEXAGRAM_TRIGRAM_BY_NUMBER[upperNumber];
+  const lowerTrigram = HEXAGRAM_TRIGRAM_BY_NUMBER[lowerNumber];
+  const lines = `${HEXAGRAM_TRIGRAM_LINES[lowerTrigram]}${HEXAGRAM_TRIGRAM_LINES[upperTrigram]}`;
+  const sum = upperNumber + lowerNumber + palaceNumber;
+  const movingLine = sum % 6 || 6;
+  const changedLines = [...lines];
+  changedLines[movingLine - 1] = changedLines[movingLine - 1] === '1' ? '0' : '1';
+  const mutualLower = HEXAGRAM_NUMBER_BY_LINES[lines.slice(1, 4)];
+  const mutualUpper = HEXAGRAM_NUMBER_BY_LINES[lines.slice(2, 5)];
+  const changedLower = HEXAGRAM_NUMBER_BY_LINES[changedLines.slice(0, 3).join('')];
+  const changedUpper = HEXAGRAM_NUMBER_BY_LINES[changedLines.slice(3, 6).join('')];
+  const trigramIndex = (trigram) => HEXAGRAM_TRIGRAM_ORDER.indexOf(trigram);
+  const getName = (upper, lower) => HEXAGRAM_NAMES[trigramIndex(lower)]?.[trigramIndex(upper)] || '';
+
+  return {
+    upperNumber,
+    lowerNumber,
+    upperTrigram,
+    lowerTrigram,
+    sum,
+    movingLine,
+    lines,
+    name: getName(upperTrigram, lowerTrigram),
+    mutualName: getName(mutualUpper, mutualLower),
+    changedName: getName(changedUpper, changedLower),
+  };
 }
 
 function renderFlightCharts(charts) {
