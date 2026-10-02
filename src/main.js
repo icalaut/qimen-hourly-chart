@@ -72,6 +72,7 @@ const CYCLE_BRANCHES = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', 
 const GANZHI_CYCLE = Array.from({ length: 60 }, (_, index) => `${STEMS[index % 10]}${CYCLE_BRANCHES[index % 12]}`);
 const LUO_SHU_FLIGHT_ORDER = [4, 8, 5, 6, 1, 7, 2, 3, 0];
 const FLYING_STAR_NAMES = ['', '一白', '二黑', '三碧', '四綠', '五黃', '六白', '七赤', '八白', '九紫'];
+const CIRCLED_FLYING_STAR_NUMBERS = new Set([1, 9, 8, 6]);
 const DAY_STAR_ANCHORS = [
   { term: '冬至', center: 1, direction: 1 },
   { term: '雨水', center: 7, direction: 1 },
@@ -1850,6 +1851,16 @@ function renderPalaces(chart) {
 function renderFlightCharts(charts) {
   const container = document.querySelector('#flight-grid');
   container.replaceChildren();
+  const overlapCounts = PALACES.map((_, index) => {
+    const counts = new Map();
+    charts.forEach((chart) => {
+      const starNumber = Number(chart.九宮星?.[index]);
+      if (CIRCLED_FLYING_STAR_NUMBERS.has(starNumber)) {
+        counts.set(starNumber, (counts.get(starNumber) || 0) + 1);
+      }
+    });
+    return counts;
+  });
 
   charts.forEach((chart) => {
     const panel = document.createElement('section');
@@ -1881,9 +1892,12 @@ function renderFlightCharts(charts) {
       const name = document.createElement('div');
       name.className = 'flight-palace-name';
       name.textContent = traditionalize(palace.name);
+      const starNumber = Number(chart.九宮星[index]);
+      const overlapCount = overlapCounts[index].get(starNumber) || 0;
       const star = document.createElement('div');
-      star.className = `flight-star-value${[1, 6, 8, 9].includes(chart.九宮星[index]) ? ' highlighted' : ''}`;
+      star.className = `flight-star-value${CIRCLED_FLYING_STAR_NUMBERS.has(starNumber) ? ' highlighted' : ''}${overlapCount > 1 ? ' overlapped' : ''}`;
       star.textContent = chart.九宮星[index];
+      if (overlapCount > 1) star.title = `${starNumber} 同宫叠见${overlapCount}盘`;
       const starName = document.createElement('div');
       starName.className = 'flight-star-name';
       starName.textContent = traditionalize(FLYING_STAR_NAMES[chart.九宮星[index]]);

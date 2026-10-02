@@ -275,6 +275,7 @@ input:focus, select:focus { border-color: var(--forest); box-shadow: 0 0 0 3px r
 .flight-palace-name { color: #506157; font-size: 9px; }
 .flight-star-value { align-self: center; color: var(--forest); font: 600 24px/1 'DM Mono', monospace; }
 .flight-star-value.highlighted { color: var(--vermilion); }
+.flight-star-value.overlapped { width: 34px; height: 34px; display: grid; place-items: center; border: 1px solid currentColor; border-radius: 50%; }
 .flight-star-name { align-self: center; color: #879188; font-size: 9px; }
 .chart-insights { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 18px; padding: 14px 0; border-bottom: 1px solid var(--line); }
 .insight-block { min-width: 0; }
