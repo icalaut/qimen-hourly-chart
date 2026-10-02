@@ -803,9 +803,9 @@ function updateChartTypeControls() {
   personalThreeVictoryInput.disabled = type !== 'mingpan';
   eightGodInput.disabled = type !== 'mingpan';
   eightGodTargetInput.disabled = type !== 'mingpan' || !eightGodInput.checked;
-  eightGodMonthInput.disabled = type !== 'mingpan' || !eightGodInput.checked || !hasGeneratedNatalChart;
+  eightGodMonthInput.disabled = type !== 'mingpan' || !eightGodInput.checked;
   shiftInput.disabled = type !== 'mingpan';
-  travelMonthInput.disabled = !(type === 'mingpan' && usesMonthlyScan && hasGeneratedNatalChart);
+  travelMonthInput.disabled = !(type === 'mingpan' && usesMonthlyScan);
   const canShift = type === 'mingpan' && hasGeneratedNatalChart;
   previousShiftButton.disabled = !canShift;
   nextShiftButton.disabled = !canShift;
