@@ -1535,16 +1535,27 @@ function getPalaceMarkers(chart) {
         : chart.盤型 === '日盘'
           ? [['日旬空', chart.日柱]]
           : [['日旬空', chart.日柱], ['时旬空', chart.時柱]];
+    const pillarBranches = [
+      ['年柱', chart.年柱],
+      ['月柱', chart.月柱],
+      ['日柱', chart.日柱],
+      ['时柱', chart.時柱],
+    ].map(([name, pillar]) => ({ name, branch: simplify(pillar).slice(-1) }))
+      .filter(({ branch }) => CYCLE_BRANCHES.some(([candidate]) => candidate === branch));
   voidSources.forEach(([label, pillar]) => {
     const branches = getVoidBranches(pillar);
     branches.forEach((branch) => {
       const index = PALACES.findIndex(({ number }) => Number(number) === VOID_BRANCH_PALACES[branch]);
       const detail = `${label}：${branches.join('、')}`;
+        const filledBy = pillarBranches.filter(({ branch: pillarBranch }) => pillarBranch === branch).map(({ name }) => name);
       const voidBranch = `[${branch}]`;
       const markerLabel = chart.盤型 === '时盘'
         ? `${label.replace('旬空', '')}空亡${voidBranch}`
         : `空亡${voidBranch}`;
-      addMarker(index, markerLabel, detail, 'void');
+        const markerTitle = filledBy.length
+          ? `${detail}；${filledBy.join('、')}见${branch}，空亡已填实`
+          : detail;
+        addMarker(index, markerLabel, markerTitle, filledBy.length ? 'void-filled' : 'void');
     });
   });
   const dayBranch = chart.日柱?.slice(-1);

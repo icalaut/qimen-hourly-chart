@@ -316,6 +316,7 @@ input:focus, select:focus { border-color: var(--forest); box-shadow: 0 0 0 3px r
 .palace-markers { position: absolute; right: 3px; bottom: 3px; left: 3px; display: flex; flex-wrap: wrap; justify-content: center; gap: 2px; min-width: 0; max-height: 15px; overflow: hidden; }
 .palace-marker { max-width: 100%; overflow: hidden; padding: 1px 3px; border: 1px solid #d5ddd4; border-radius: 2px; color: #5f6b62; background: #f6f8f3; font-size: 8px; line-height: 1.2; text-overflow: ellipsis; white-space: nowrap; }
 .palace-marker.void { color: #765a28; border-color: #e2d6c2; background: #f5f0e6; }
+.palace-marker.void-filled { color: #fff; border-color: #765a28; background: #765a28; font-weight: 600; }
 .palace-marker.overcoming { color: #a14836; border-color: #e0b8ad; background: #fbefeb; }
 .palace-marker.auspicious { color: var(--forest); border-color: #c9dacb; background: #edf4ed; }
 .palace-marker.victory { color: #fff; border-color: #245a49; background: #245a49; font-weight: 600; }
