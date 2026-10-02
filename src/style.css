@@ -84,7 +84,10 @@ main { padding: 38px 0 30px; }
     overflow-y: auto;
     overscroll-behavior: contain;
     padding-right: 8px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
   }
+  .controls #chart-form::-webkit-scrollbar { display: none; }
 }
 .section-index { color: var(--vermilion); font: 11px 'DM Mono', monospace; letter-spacing: 1px; }
 .section-index span { margin-left: 8px; color: var(--muted); font: 12px 'Noto Serif TC', serif; letter-spacing: 0; }
