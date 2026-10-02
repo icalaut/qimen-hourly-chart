@@ -100,6 +100,18 @@ const SEVEN_STAR_WALK_PATHS = {
   东北: [[82, 16], [98, 32], [64, 66], [48, 50], [28, 66], [11, 84], [-5, 100]],
 };
 const VOID_BRANCH_PALACES = { 子: 1, 丑: 8, 寅: 8, 卯: 3, 辰: 4, 巳: 4, 午: 9, 未: 2, 申: 2, 酉: 7, 戌: 6, 亥: 6 };
+const DAY_STEM_AUSPICIOUS_MARKERS = {
+  甲: { joyPalace: 8, wealthPalace: 8, nobleBranches: ['丑', '未'] },
+  乙: { joyPalace: 6, wealthPalace: 8, nobleBranches: ['子', '申'] },
+  丙: { joyPalace: 2, wealthPalace: 2, nobleBranches: ['亥', '酉'] },
+  丁: { joyPalace: 9, wealthPalace: 2, nobleBranches: ['亥', '酉'] },
+  戊: { joyPalace: 4, wealthPalace: 1, nobleBranches: ['丑', '未'] },
+  己: { joyPalace: 8, wealthPalace: 1, nobleBranches: ['子', '申'] },
+  庚: { joyPalace: 6, wealthPalace: 3, nobleBranches: ['丑', '未'] },
+  辛: { joyPalace: 2, wealthPalace: 3, nobleBranches: ['寅', '午'] },
+  壬: { joyPalace: 9, wealthPalace: 9, nobleBranches: ['卯', '巳'] },
+  癸: { joyPalace: 4, wealthPalace: 9, nobleBranches: ['卯', '巳'] },
+};
 const YIMA_BRANCHES = {
   子: '寅', 辰: '寅', 申: '寅',
   寅: '申', 午: '申', 戌: '申',
@@ -1526,6 +1538,22 @@ function getPalaceMarkers(chart) {
     if (index < 0 || markers[index].some((marker) => marker.text === text)) return;
     markers[index].push({ text, title, type });
   };
+
+  if (chart.盤型 === '时盘') {
+    const dayStem = simplify(chart.日柱?.[0]);
+    const auspicious = DAY_STEM_AUSPICIOUS_MARKERS[dayStem];
+    if (auspicious) {
+      const palaceIndex = (number) => PALACES.findIndex(({ number: palaceNumber }) => Number(palaceNumber) === number);
+      addMarker(palaceIndex(auspicious.joyPalace), '喜', `日干${dayStem}喜神方位`, 'direction-deity');
+      addMarker(palaceIndex(auspicious.wealthPalace), '财', `日干${dayStem}财神方位`, 'direction-deity');
+      auspicious.nobleBranches.forEach((branch) => {
+        const noblePalaceNumber = VOID_BRANCH_PALACES[branch];
+        const nobleIndex = palaceIndex(noblePalaceNumber);
+        const noblePalace = PALACES[nobleIndex];
+        addMarker(nobleIndex, '贵', `日干${dayStem}天乙贵人：${branch}，${noblePalace?.direction || ''}${noblePalace?.name || ''}`, 'direction-deity');
+      });
+    }
+  }
 
   const voidSources = chart.盤型 === '命盘'
     ? [['时旬空', chart.時柱]]
