@@ -13,6 +13,7 @@ const DOOR_ELEMENTS = { 休: 'water', 死: 'earth', 伤: 'wood', 杜: 'wood', �
 const STEM_ELEMENTS = { 甲: 'wood', 乙: 'wood', 丙: 'fire', 丁: 'fire', 戊: 'earth', 己: 'earth', 庚: 'metal', 辛: 'metal', 壬: 'water', 癸: 'water' };
 const STAR_ELEMENTS = { 蓬: 'water', 任: 'earth', 冲: 'wood', 辅: 'wood', 英: 'fire', 芮: 'earth', 禽: 'earth', 柱: 'metal', 心: 'metal' };
 const PALACE_ELEMENTS = { 1: 'water', 2: 'earth', 3: 'wood', 4: 'wood', 5: 'earth', 6: 'metal', 7: 'metal', 8: 'earth', 9: 'fire' };
+const ELEMENT_GLYPHS = { wood: '木', fire: '火', earth: '土', metal: '金', water: '水' };
 const ELEMENT_GENERATES = { wood: 'fire', fire: 'earth', earth: 'metal', metal: 'water', water: 'wood' };
 const ELEMENT_CONTROLS = { wood: 'earth', earth: 'water', water: 'fire', fire: 'metal', metal: 'wood' };
 const PALACE_HIDDEN_BRANCHES = { 1: ['子'], 2: ['未', '申'], 3: ['卯'], 4: ['辰', '巳'], 5: ['未', '申'], 6: ['戌', '亥'], 7: ['酉'], 8: ['丑', '寅'], 9: ['午'] };
@@ -1761,6 +1762,12 @@ function renderPalaces(chart) {
     const number = document.createElement('span');
     number.textContent = palace.number;
     head.append(number);
+    if (index !== 4) {
+      const elementLabel = document.createElement('span');
+      elementLabel.className = 'palace-element-label';
+      elementLabel.textContent = ELEMENT_GLYPHS[PALACE_ELEMENTS[Number(palace.number)]];
+      head.append(elementLabel);
+    }
 
     const name = document.createElement('div');
     name.className = 'palace-name';
