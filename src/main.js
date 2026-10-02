@@ -646,11 +646,14 @@ async function generateFlightCharts(datetime) {
 
   if (monthIndex === undefined || hourIndex < 0) throw new Error('無法根據干支確定月或時飛星。');
 
+  const hourChart = makeFlyingStarChart('時飛星', normalizeFlyingStar(hourStart + seasonalDirection * hourIndex), seasonalDirection);
+  hourChart.飛步 = timeChart.飛步;
+
   return [
     makeFlyingStarChart('年飛星', normalizeFlyingStar(11 - String(solarYear).split('').reduce((sum, digit) => sum + Number(digit), 0)), 1),
     makeFlyingStarChart('月飛星', normalizeFlyingStar(monthStart - monthIndex), 1),
     makeFlyingStarChart('日飛星', daily.center, daily.direction),
-    makeFlyingStarChart('時飛星', normalizeFlyingStar(hourStart + seasonalDirection * hourIndex), seasonalDirection),
+    hourChart,
   ];
 }
 
@@ -1845,7 +1848,7 @@ function renderPalaces(chart) {
     if (hexagram && hexagramData) {
       hexagram.className = 'palace-hexagram';
       hexagram.title = traditionalize(
-        `上卦${hexagramData.upperTrigram}（${hexagramData.upperNumber}）下卦${hexagramData.lowerTrigram}（${hexagramData.lowerNumber}）；${hexagramData.upperNumber}+${hexagramData.lowerNumber}+宫${palace.number}=${hexagramData.sum}，第${hexagramData.movingLine}爻动；互卦${hexagramData.mutualName}，变卦${hexagramData.changedName}`,
+        `上卦${hexagramData.upperTrigram}（${hexagramData.upperNumber}）下卦${hexagramData.lowerTrigram}（${hexagramData.lowerNumber}）；${hexagramData.upperNumber}+${hexagramData.lowerNumber}+飞数${hexagramData.flyingNumber}=${hexagramData.sum}，第${hexagramData.movingLine}爻动；互卦${hexagramData.mutualName}，变卦${hexagramData.changedName}`,
       );
       const hexagramName = document.createElement('span');
       hexagramName.className = 'palace-hexagram-name';
@@ -1936,13 +1939,13 @@ function getPalaceHexagram(chart, palaceIndex) {
   const doorName = simplify(chart.天門?.[palaceIndex]);
   const upperNumber = NINE_STAR_TRIGRAM_NUMBERS[starName];
   const lowerNumber = EIGHT_DOOR_TRIGRAM_NUMBERS[doorName];
-  const palaceNumber = Number(PALACES[palaceIndex]?.number);
-  if (!upperNumber || !lowerNumber || !palaceNumber) return null;
+  const flyingNumber = chart.奇門飛數?.[palaceIndex];
+  if (!upperNumber || !lowerNumber || !flyingNumber) return null;
 
   const upperTrigram = HEXAGRAM_TRIGRAM_BY_NUMBER[upperNumber];
   const lowerTrigram = HEXAGRAM_TRIGRAM_BY_NUMBER[lowerNumber];
   const lines = `${HEXAGRAM_TRIGRAM_LINES[lowerTrigram]}${HEXAGRAM_TRIGRAM_LINES[upperTrigram]}`;
-  const sum = upperNumber + lowerNumber + palaceNumber;
+  const sum = upperNumber + lowerNumber + flyingNumber;
   const movingLine = sum % 6 || 6;
   const changedLines = [...lines];
   changedLines[movingLine - 1] = changedLines[movingLine - 1] === '1' ? '0' : '1';
@@ -1958,6 +1961,7 @@ function getPalaceHexagram(chart, palaceIndex) {
     lowerNumber,
     upperTrigram,
     lowerTrigram,
+    flyingNumber,
     sum,
     movingLine,
     lines,
@@ -2349,6 +2353,9 @@ async function generateChart(event) {
   try {
     await loadTraditionalizer();
     const chart = await generateByChartType(chartType, datetime);
+    const flightCharts = await generateFlightCharts(datetime);
+    const hourChart = flightCharts.find((flightChart) => flightChart.盤型 === '時飛星');
+    chart.奇門飛數 = hourChart?.九宮星.map((starNumber) => normalizeFlyingStar(starNumber + hourChart.飛步));
     const lunarDate = await formatLunarDate(datetime, chart);
     renderChart(chart, datetime, lunarDate);
     await renderStarDayGuidance(datetime, chart);
@@ -2361,7 +2368,6 @@ async function generateChart(event) {
       ? await getEightGodActivationDates(eightGodMonth, selectedHour, eightGodTargetInput.value)
       : [];
     renderEightGodActivation(eightGodMonth, eightGodTargetInput.value, eightGodMatches);
-    const flightCharts = await generateFlightCharts(datetime);
     renderFlightCharts(flightCharts);
   } catch (error) {
     errorMessage.textContent = traditionalize(error instanceof Error ? error.message : '起盘失败，请检查输入。');
