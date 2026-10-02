@@ -1,0 +1,21 @@
+{
+  "name": "时盘 · 奇门遁甲排盘",
+  "short_name": "时盘",
+  "description": "年、月、日、时多层奇门遁甲排盘工具",
+  "start_url": "./",
+  "scope": "./",
+  "id": "qimen-time-chart",
+  "display": "standalone",
+  "background_color": "#edf2ec",
+  "theme_color": "#edf2ec",
+  "lang": "zh-TW",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

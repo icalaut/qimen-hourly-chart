@@ -1,0 +1,11 @@
+{
+  "name": "时盘 · 奇门遁甲排盘",
+  "short_name": "时盘",
+  "description": "年、月、日、时多层奇门遁甲排盘工具",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#edf2ec",
+  "theme_color": "#edf2ec",
+  "lang": "zh-TW",
+  "orientation": "landscape"
+}

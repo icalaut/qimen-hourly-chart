@@ -1,0 +1,21 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Start Qimen chart preview",
+			"type": "shell",
+			"command": "ruby",
+			"args": [
+				"-run",
+				"-e",
+				"httpd",
+				".",
+				"-p",
+				"4173"
+			],
+			"isBackground": true,
+			"problemMatcher": [],
+			"group": "build"
+		}
+	]
+}
