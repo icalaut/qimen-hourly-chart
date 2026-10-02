@@ -323,6 +323,7 @@ input:focus, select:focus { border-color: var(--forest); box-shadow: 0 0 0 3px r
 :is(.palace, .flight-palace)[data-element='metal'] { background: var(--element-metal-wash); }
 :is(.palace, .flight-palace)[data-element='water'] { background: var(--element-water-wash); }
 .palace-head { position: absolute; z-index: 1; top: 5px; right: 7px; left: 7px; display: flex; justify-content: space-between; color: #89938a; font: 10px 'DM Mono', monospace; }
+.palace-top-markers { position: absolute; top: 0; left: 50%; display: flex; gap: 2px; transform: translateX(-50%); }
 .palace-element-label { color: var(--ink); font: 600 9px/1 'Noto Serif TC', serif; }
 .palace-element-label[data-element='wood'] { color: #008f5a; }
 .palace-element-label[data-element='fire'] { color: #e60012; }
@@ -441,8 +442,8 @@ input:focus, select:focus { border-color: var(--forest); box-shadow: 0 0 0 3px r
   .layer.door { border-width: 2px; font-size: 18px; }
   .layer { font-size: 11px; line-height: 0.95; }
   .layer-label { font-size: 8px; }
-  .palace { display: grid; grid-template-rows: 14px minmax(62px, 1fr) auto; row-gap: 2px; min-height: 112px; aspect-ratio: auto; padding: 3px 2px; }
-  .palace-head { position: relative; top: auto; right: auto; left: auto; }
+  .palace { display: grid; grid-template-rows: 17px minmax(62px, 1fr) auto; row-gap: 2px; min-height: 112px; aspect-ratio: auto; padding: 3px 2px; }
+  .palace-head { position: relative; top: auto; right: auto; left: auto; min-height: 15px; }
   .palace-layers { position: relative; inset: auto; width: 60px; height: 60px; min-height: 0; margin: 0 auto; grid-template: repeat(3, minmax(0, 1fr)) / repeat(3, minmax(0, 1fr)); }
   .layer { width: 100%; height: 100%; }
   .layer.door { border-width: 1px; padding-top: 0; font-size: 18px; }
@@ -459,7 +460,7 @@ input:focus, select:focus { border-color: var(--forest); box-shadow: 0 0 0 3px r
 }
 
 @media (min-width: 381px) and (max-width: 480px) {
-  .palace { grid-template-rows: 14px minmax(80px, 1fr) auto; }
+  .palace { grid-template-rows: 17px minmax(80px, 1fr) auto; }
   .palace-layers { width: 78px; height: 78px; }
   .layer { font-size: 13px; line-height: 0.95; }
   .layer.door { font-size: 20px; }

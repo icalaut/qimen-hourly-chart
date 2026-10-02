@@ -1801,6 +1801,19 @@ function renderPalaces(chart) {
     const number = document.createElement('span');
     number.textContent = palace.number;
     head.append(number);
+    const directionMarkers = palaceMarkers[index].filter(({ type }) => type === 'direction-deity');
+    if (directionMarkers.length) {
+      const topMarkers = document.createElement('span');
+      topMarkers.className = 'palace-top-markers';
+      directionMarkers.forEach((marker) => {
+        const badge = document.createElement('span');
+        badge.className = 'palace-marker direction-deity';
+        badge.textContent = traditionalize(marker.text);
+        badge.title = traditionalize(marker.title);
+        topMarkers.append(badge);
+      });
+      head.append(topMarkers);
+    }
     if (index !== 4) {
       const elementLabel = document.createElement('span');
       elementLabel.className = 'palace-element-label';
@@ -1864,7 +1877,7 @@ function renderPalaces(chart) {
     );
     const markers = document.createElement('div');
     markers.className = 'palace-markers';
-    palaceMarkers[index].forEach((marker) => {
+    palaceMarkers[index].filter(({ type }) => type !== 'direction-deity').forEach((marker) => {
       const badge = document.createElement('span');
       badge.className = `palace-marker ${marker.type}${marker.text.length > 5 ? ' long' : ''}`;
       badge.textContent = traditionalize(marker.text);
