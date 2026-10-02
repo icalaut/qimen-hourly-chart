@@ -1546,11 +1546,15 @@ function getPalaceMarkers(chart) {
       const palaceIndex = (number) => PALACES.findIndex(({ number: palaceNumber }) => Number(palaceNumber) === number);
       addMarker(palaceIndex(auspicious.joyPalace), '喜', `日干${dayStem}喜神方位`, 'direction-deity');
       addMarker(palaceIndex(auspicious.wealthPalace), '财', `日干${dayStem}财神方位`, 'direction-deity');
-      auspicious.nobleBranches.forEach((branch) => {
+      auspicious.nobleBranches.forEach((branch, branchIndex) => {
         const noblePalaceNumber = VOID_BRANCH_PALACES[branch];
         const nobleIndex = palaceIndex(noblePalaceNumber);
         const noblePalace = PALACES[nobleIndex];
-        addMarker(nobleIndex, '贵', `日干${dayStem}天乙贵人：${branch}，${noblePalace?.direction || ''}${noblePalace?.name || ''}`, 'direction-deity');
+        const nobleType = branchIndex === 0
+          ? 'direction-deity direction-deity-filled'
+          : 'direction-deity';
+        const nobleLabel = branchIndex === 0 ? '阳贵／昼贵' : '阴贵／夜贵';
+        addMarker(nobleIndex, '贵', `日干${dayStem}${nobleLabel}：${branch}，${noblePalace?.direction || ''}${noblePalace?.name || ''}`, nobleType);
       });
     }
   }
@@ -1801,13 +1805,13 @@ function renderPalaces(chart) {
     const number = document.createElement('span');
     number.textContent = palace.number;
     head.append(number);
-    const directionMarkers = palaceMarkers[index].filter(({ type }) => type === 'direction-deity');
+    const directionMarkers = palaceMarkers[index].filter(({ type }) => type.includes('direction-deity'));
     if (directionMarkers.length) {
       const topMarkers = document.createElement('span');
       topMarkers.className = 'palace-top-markers';
       directionMarkers.forEach((marker) => {
         const badge = document.createElement('span');
-        badge.className = 'palace-marker direction-deity';
+        badge.className = `palace-marker ${marker.type}`;
         badge.textContent = traditionalize(marker.text);
         badge.title = traditionalize(marker.title);
         topMarkers.append(badge);
@@ -1877,7 +1881,7 @@ function renderPalaces(chart) {
     );
     const markers = document.createElement('div');
     markers.className = 'palace-markers';
-    palaceMarkers[index].filter(({ type }) => type !== 'direction-deity').forEach((marker) => {
+    palaceMarkers[index].filter(({ type }) => !type.includes('direction-deity')).forEach((marker) => {
       const badge = document.createElement('span');
       badge.className = `palace-marker ${marker.type}${marker.text.length > 5 ? ' long' : ''}`;
       badge.textContent = traditionalize(marker.text);
