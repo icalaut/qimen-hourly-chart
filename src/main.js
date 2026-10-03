@@ -642,7 +642,7 @@ async function generateFlightCharts(datetime) {
   const hourIndex = CYCLE_BRANCHES.indexOf(hourBranch);
   const hourStart = getGroupedStar(dayBranch, seasonalDirection === 1
     ? { 子午卯酉: 1, 辰戌丑未: 4, 寅申巳亥: 7 }
-    : { 子午卯酉: 9, 辰戌丑未: 3, 寅申巳亥: 6 });
+    : { 子午卯酉: 9, 辰戌丑未: 6, 寅申巳亥: 3 });
 
   if (monthIndex === undefined || hourIndex < 0) throw new Error('無法根據干支確定月或時飛星。');
 
@@ -2357,7 +2357,7 @@ async function generateChart(event) {
     const chart = await generateByChartType(chartType, datetime);
     const flightCharts = await generateFlightCharts(datetime);
     const hourChart = flightCharts.find((flightChart) => flightChart.盤型 === '時飛星');
-    chart.奇門飛數 = hourChart && PALACES.map(({ number }) => normalizeFlyingStar(Number(number) + hourChart.飛步));
+    chart.奇門飛數 = hourChart?.九宮星.slice();
     const lunarDate = await formatLunarDate(datetime, chart);
     renderChart(chart, datetime, lunarDate);
     await renderStarDayGuidance(datetime, chart);
