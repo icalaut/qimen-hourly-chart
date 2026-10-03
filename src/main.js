@@ -2357,7 +2357,7 @@ async function generateChart(event) {
     const chart = await generateByChartType(chartType, datetime);
     const flightCharts = await generateFlightCharts(datetime);
     const hourChart = flightCharts.find((flightChart) => flightChart.盤型 === '時飛星');
-    chart.奇門飛數 = hourChart?.九宮星.map((starNumber) => normalizeFlyingStar(starNumber + hourChart.飛步));
+    chart.奇門飛數 = hourChart && PALACES.map(({ number }) => normalizeFlyingStar(Number(number) + hourChart.飛步));
     const lunarDate = await formatLunarDate(datetime, chart);
     renderChart(chart, datetime, lunarDate);
     await renderStarDayGuidance(datetime, chart);
