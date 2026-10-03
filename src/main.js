@@ -1621,7 +1621,7 @@ function getPalaceMarkers(chart) {
     const palaceNumber = Number(palace.number);
 
     if (STEM_TOMB_PALACES[skyStem] === palaceNumber) {
-      addMarker(index, '入墓', `天盤${skyStem}落${palace.direction}${palace.name}，為${skyStem}入墓`, 'overcoming');
+      addMarker(index, `天盤${skyStem}入墓`, `天盤${skyStem}落${palace.direction}${palace.name}，為${skyStem}入墓`, 'overcoming');
     }
 
     if (skyStem === '乙' && earthStem === '庚') {
@@ -2310,7 +2310,9 @@ function renderChart(chart, datetime, lunarDate) {
   renderSevenStarLamp(chart);
   renderHub(chart);
   renderInsights(chart);
-  document.querySelector('#source-note').textContent = traditionalize(chart.展示說明 || '时家盘由 qimen-dunjia 计算库生成；时刻按 UTC+8 标准时解释，子时可切换换日口径。');
+  const sourceNote = document.querySelector('#source-note');
+  sourceNote.textContent = traditionalize(chart.展示說明 || '');
+  sourceNote.hidden = !chart.展示說明;
   errorMessage.hidden = true;
   emptyState.hidden = true;
   result.hidden = false;
