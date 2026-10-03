@@ -35,6 +35,8 @@ const DEFAULT_JU_METHOD = '符頭';
 const DEFAULT_ZI_METHOD = '次日';
 
 const dateInput = document.querySelector('#chart-date');
+const monthInput = document.querySelector('#chart-month');
+const yearInput = document.querySelector('#chart-year');
 const hourInput = document.querySelector('#chart-hour');
 const chartTypeInput = document.querySelector('#chart-type');
 const predictionTopicInput = document.querySelector('#prediction-topic');
@@ -143,8 +145,8 @@ const NINE_STARS = ['天蓬', '天芮', '天冲', '天辅', '天禽', '天心', 
 const EIGHT_DOORS = ['休门', '生门', '伤门', '杜门', '景门', '死门', '惊门', '开门'];
 const MODE_HINTS = {
   mingpan: '按所填出生年月日时，以时家转盘法起个人命盘。',
-  nianjia: '年家盘按所选公历年份起局；月、日、时不参与年盘计算。',
-  yuejia: '月家盘按所选日期对应的节气月起局；时刻用于判定节气月。',
+  nianjia: '年家盘只需输入公历年份，按该年立春起算的干支年起局；无需选择月、日与时辰。',
+  yuejia: '月家盘只需选择公历月份，按该月对应的节气月起局；无需选择日期与时辰。',
   rijia: '日家盘按所选公历年月日起局；小时不参与日盘计算。',
   shijia: '时家盘按所选日期与整点时辰起局。',
 };
@@ -354,7 +356,8 @@ async function formatLunarDate(datetime, chart) {
   const month = Number(datetime.slice(4, 6));
   const day = Number(datetime.slice(6, 8));
   const lunarDate = Solar.fromYmd(year, month, day).getLunar().toString();
-  const includesHour = ['命盘', '月盘', '时盘'].includes(chart.盤型);
+  if (['年盘', '月盘'].includes(chart.盤型)) return '';
+  const includesHour = ['命盘', '时盘'].includes(chart.盤型);
   const hourBranch = chart.時柱?.[1] || branchForHour(Number(datetime.slice(8, 10)));
   return traditionalize(`农历${lunarDate}日${includesHour && hourBranch ? ` · ${hourBranch}时` : ''}`);
 }
@@ -450,7 +453,24 @@ function setDefaults() {
     hourCycle: 'h23',
   }).formatToParts(new Date()).map(({ type, value }) => [type, value]));
   dateInput.value = `${parts.year}-${parts.month}-${parts.day}`;
+  monthInput.value = `${parts.year}-${parts.month}`;
+  yearInput.value = parts.year;
   hourInput.value = String(Number(parts.hour));
+}
+
+function shiftSelectedYear(yearOffset) {
+  const year = Number(yearInput.value);
+  if (!Number.isInteger(year)) return;
+  yearInput.value = String(year + yearOffset);
+  generateChart();
+}
+
+function shiftSelectedMonth(monthOffset) {
+  if (!monthInput.value) return;
+  const [year, month] = monthInput.value.split('-').map(Number);
+  const shifted = new Date(Date.UTC(year, month - 1 + monthOffset, 1));
+  monthInput.value = `${shifted.getUTCFullYear()}-${pad(shifted.getUTCMonth() + 1)}`;
+  generateChart();
 }
 
 function setSelectedDateOffset(dayOffset) {
@@ -817,7 +837,20 @@ function applyStarShift(chart, steps) {
 
 function updateChartTypeControls() {
   const type = chartTypeInput.value;
-  const needsHour = ['mingpan', 'yuejia', 'shijia'].includes(type);
+  const needsHour = ['mingpan', 'shijia'].includes(type);
+  const monthOnly = type === 'yuejia';
+  const yearOnly = type === 'nianjia';
+  document.querySelector('#chart-year-label').hidden = !yearOnly;
+  document.querySelector('#chart-year-row').hidden = !yearOnly;
+  yearInput.disabled = !yearOnly;
+  yearInput.required = yearOnly;
+  document.querySelector('#chart-month-label').hidden = !monthOnly;
+  document.querySelector('#chart-month-row').hidden = !monthOnly;
+  document.querySelector('#chart-date-field-label').hidden = monthOnly || yearOnly;
+  document.querySelector('#chart-date-row').hidden = monthOnly || yearOnly;
+  monthInput.disabled = !monthOnly;
+  monthInput.required = monthOnly;
+  dateInput.disabled = monthOnly || yearOnly;
   const usesMonthlyScan = travelInput.checked || personalThreeVictoryInput.checked;
   document.querySelector('#prediction-option').hidden = type !== 'shijia';
   const needsPredictionDirection = ['invite', 'migration'].includes(predictionTopicInput.value);
@@ -2302,8 +2335,9 @@ function renderChart(chart, datetime, lunarDate) {
   document.querySelector('#chart-date-label').textContent = traditionalize(dateLabel);
   const lunarLabel = document.querySelector('#lunar-date-label');
   lunarLabel.textContent = traditionalize(lunarDate);
-  lunarLabel.hidden = false;
-  document.querySelector('#result-eyebrow').textContent = traditionalize(`${chart.節氣 || chart.盤型 || '时盘'} · ${chart.三元 || '三元未明'}`);
+  lunarLabel.hidden = !lunarDate;
+  const eyebrowLead = chart.盤型 === '年盘' ? '年家盘' : chart.節氣 || chart.盤型 || '时盘';
+  document.querySelector('#result-eyebrow').textContent = traditionalize(`${eyebrowLead} · ${chart.三元 || '三元未明'}`);
   document.querySelector('#result-title').textContent = traditionalize(`${chart.陰陽 || ''}遁${chart.局數 || ''}局`);
   document.querySelector('#method-tag').textContent = traditionalize(chart.盤型 || `${chart.定局法 || DEFAULT_JU_METHOD}法`);
   document.querySelector('#plate-stamp').textContent = traditionalize(chart.盤型 === '命盘' ? '生辰 · 时家转盘' : `${chart.盤型 || '时盘'} · 转盘`);
@@ -2332,8 +2366,16 @@ async function generateChart(event) {
   event?.preventDefault();
   errorMessage.hidden = true;
 
-  if (!dateInput.value) {
-    errorMessage.textContent = traditionalize('请先选择公历日期。');
+  const monthOnly = chartTypeInput.value === 'yuejia';
+  const yearOnly = chartTypeInput.value === 'nianjia';
+  const yearValue = Number(yearInput.value);
+  if (yearOnly && !(Number.isInteger(yearValue) && yearValue >= 1900 && yearValue <= 2100)) {
+    errorMessage.textContent = traditionalize('请输入 1900–2100 之间的公历年份。');
+    errorMessage.hidden = false;
+    return;
+  }
+  if (!yearOnly && (monthOnly ? !monthInput.value : !dateInput.value)) {
+    errorMessage.textContent = traditionalize(monthOnly ? '请先选择公历月份。' : '请先选择公历日期。');
     errorMessage.hidden = false;
     return;
   }
@@ -2343,9 +2385,12 @@ async function generateChart(event) {
     return;
   }
 
-  const [year, month, day] = dateInput.value.split('-');
+  // 年盘取6月15日、月盘取当月15日正午，均避开节气交接。
+  const [year, month, day] = yearOnly
+    ? [String(yearValue), '06', '15']
+    : monthOnly ? [...monthInput.value.split('-'), '15'] : dateInput.value.split('-');
   const chartType = chartTypeInput.value;
-  const selectedHour = Number(hourInput.value);
+  const selectedHour = monthOnly || yearOnly ? 12 : Number(hourInput.value);
   const datetime = `${year}${month}${day}${pad(selectedHour)}`;
   const usesMonthlyScan = chartType === 'mingpan' && (travelInput.checked || personalThreeVictoryInput.checked);
   const usesEightGodScan = chartType === 'mingpan' && eightGodInput.checked;
@@ -2398,13 +2443,7 @@ setDefaults();
 travelMonthInput.value = dateInput.value.slice(0, 7);
 eightGodMonthInput.value = dateInput.value.slice(0, 7);
 form.addEventListener('submit', generateChart);
-chartTypeInput.addEventListener('change', () => {
-  updateChartTypeControls();
-  renderPrediction(null);
-  document.querySelector('#travel-month-section').hidden = true;
-  document.querySelector('#seven-star-section').hidden = true;
-  document.querySelector('#eight-god-section').hidden = true;
-});
+chartTypeInput.addEventListener('change', () => resetOutputAndInputs(chartTypeInput.value));
 predictionTopicInput.addEventListener('change', () => {
   updateChartTypeControls();
   renderPrediction(lastRenderedChart);
@@ -2465,12 +2504,14 @@ document.querySelector('#now-button').addEventListener('click', () => {
   setDefaults();
   generateChart();
 });
-document.querySelector('#clear-button').addEventListener('click', () => {
+function resetOutputAndInputs(chartType) {
   form.reset();
+  if (chartType) chartTypeInput.value = chartType;
   setDefaults();
   travelMonthInput.value = dateInput.value.slice(0, 7);
   eightGodMonthInput.value = dateInput.value.slice(0, 7);
   hasGeneratedNatalChart = false;
+  lastRenderedChart = null;
   errorMessage.hidden = true;
   result.hidden = true;
   emptyState.hidden = false;
@@ -2482,8 +2523,15 @@ document.querySelector('#clear-button').addEventListener('click', () => {
   document.querySelector('#eight-god-section').hidden = true;
   document.querySelector('#shift-step-status').textContent = traditionalize('尚未生成命盘');
   document.querySelector('#flight-grid').replaceChildren();
+  renderPrediction(null);
   updateChartTypeControls();
-});
+}
+
+document.querySelector('#clear-button').addEventListener('click', () => resetOutputAndInputs());
+document.querySelector('#previous-year-button').addEventListener('click', () => shiftSelectedYear(-1));
+document.querySelector('#next-year-button').addEventListener('click', () => shiftSelectedYear(1));
+document.querySelector('#previous-month-button').addEventListener('click', () => shiftSelectedMonth(-1));
+document.querySelector('#next-month-button').addEventListener('click', () => shiftSelectedMonth(1));
 document.querySelector('#previous-date-button').addEventListener('click', () => shiftSelectedDate(-1));
 document.querySelector('#next-date-button').addEventListener('click', () => shiftSelectedDate(1));
 function shiftSelectedShichen(direction) {

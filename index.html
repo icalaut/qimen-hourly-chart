@@ -171,8 +171,20 @@
                 <label class="field-label" for="eight-god-month">扫描月份</label>
                 <input id="eight-god-month" name="eightGodMonth" type="month" />
               </div>
-              <label class="field-label" for="chart-date">公历日期</label>
-              <div class="date-input-row">
+              <label class="field-label" id="chart-year-label" for="chart-year" hidden>公历年份</label>
+              <div class="date-input-row" id="chart-year-row" hidden>
+                <button class="date-nav-button" id="previous-year-button" type="button" aria-label="前一年" title="前一年">‹</button>
+                <input id="chart-year" name="year" type="number" min="1900" max="2100" step="1" inputmode="numeric" />
+                <button class="date-nav-button" id="next-year-button" type="button" aria-label="后一年" title="后一年">›</button>
+              </div>
+              <label class="field-label" id="chart-month-label" for="chart-month" hidden>公历月份</label>
+              <div class="date-input-row" id="chart-month-row" hidden>
+                <button class="date-nav-button" id="previous-month-button" type="button" aria-label="前一月" title="前一月">‹</button>
+                <input id="chart-month" name="month" type="month" />
+                <button class="date-nav-button" id="next-month-button" type="button" aria-label="后一月" title="后一月">›</button>
+              </div>
+              <label class="field-label" id="chart-date-field-label" for="chart-date">公历日期</label>
+              <div class="date-input-row" id="chart-date-row">
                 <button class="date-nav-button" id="previous-date-button" type="button" aria-label="前一天" title="前一天">‹</button>
                 <input id="chart-date" name="date" type="date" required />
                 <button class="date-nav-button" id="next-date-button" type="button" aria-label="后一天" title="后一天">›</button>
