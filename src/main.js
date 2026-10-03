@@ -1801,7 +1801,18 @@ function renderPalaces(chart) {
     head.className = 'palace-head';
     const number = document.createElement('span');
     number.textContent = palace.number;
-    head.append(number);
+    const headLeft = document.createElement('span');
+    headLeft.className = 'palace-head-left';
+    const flyingStar = chart.紫白飛星?.[index];
+    if (flyingStar) {
+      const starBox = document.createElement('span');
+      starBox.className = 'palace-flying-star';
+      starBox.textContent = flyingStar;
+      starBox.title = `${chart.紫白盤名}：${flyingStar}`;
+      headLeft.append(starBox);
+    }
+    headLeft.append(number);
+    head.append(headLeft);
     const directionMarkers = palaceMarkers[index].filter(({ type }) => type.includes('direction-deity'));
     if (directionMarkers.length) {
       const topMarkers = document.createElement('span');
@@ -2276,6 +2287,12 @@ async function generateChart(event) {
     await loadTraditionalizer();
     const chart = await generateByChartType(chartType, datetime);
     const flightCharts = await generateFlightCharts(datetime);
+    const flightName = ({ 年盘: '年飛星', 月盘: '月飛星', 日盘: '日飛星' })[chart.盤型] ?? '時飛星';
+    const matchedFlight = flightCharts.find(({ 盤型 }) => 盤型 === flightName);
+    if (matchedFlight) {
+      chart.紫白飛星 = matchedFlight.九宮星;
+      chart.紫白盤名 = traditionalize(matchedFlight.盤型);
+    }
     const lunarDate = await formatLunarDate(datetime, chart);
     renderChart(chart, datetime, lunarDate);
     await renderStarDayGuidance(datetime, chart);
