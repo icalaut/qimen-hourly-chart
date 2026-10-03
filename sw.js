@@ -1,11 +1,11 @@
-const CACHE_NAME = 'qimen-time-chart-v63';
+const CACHE_NAME = 'qimen-time-chart-v64';
 const APP_SHELL = [
   './',
   './index.html',
   './manifest.webmanifest',
   './icon.svg',
-  './src/main.js?v=20261003-palace-flying-number',
-  './src/style.css?v=20261003-palace-hexagrams',
+  './src/main.js?v=20261003-remove-hexagrams',
+  './src/style.css?v=20261003-remove-hexagrams',
 ];
 
 self.addEventListener('install', (event) => {
