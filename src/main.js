@@ -798,6 +798,7 @@ async function generateByChartType(type, datetime) {
       Number(datetime.slice(0, 4)), Number(datetime.slice(4, 6)), Number(datetime.slice(6, 8)),
       Number(datetime.slice(8, 10)), 0, 0,
     ).getLunar().getEightChar();
+    eightChar.setSect(1);
     return {
       ...shiftedChart,
       八字日柱: eightChar.getDay(),
