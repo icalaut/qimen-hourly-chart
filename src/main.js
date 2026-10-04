@@ -892,7 +892,7 @@ function updateChartTypeControls() {
   eightGodMonthInput.disabled = type !== 'mingpan' || !eightGodInput.checked;
   shiftInput.disabled = type !== 'mingpan';
   travelMonthInput.disabled = !(type === 'mingpan' && usesMonthlyScan);
-  const canShift = type === 'mingpan' && hasGeneratedNatalChart;
+  const canShift = type === 'mingpan';
   previousShiftButton.disabled = !canShift;
   nextShiftButton.disabled = !canShift;
   shiftStepsInput.disabled = true;
@@ -1936,15 +1936,16 @@ function renderPalaces(chart) {
     number.textContent = palace.number;
     const headLeft = document.createElement('span');
     headLeft.className = 'palace-head-left';
+    const isNatal = chart.盤型 === '命盘';
     const flyingStar = chart.紫白飛星?.[index];
-    if (flyingStar) {
+    if (flyingStar && !isNatal) {
       const starBox = document.createElement('span');
       starBox.className = 'palace-flying-star';
       starBox.textContent = flyingStar;
       starBox.title = `${chart.紫白盤名}：${flyingStar}`;
       headLeft.append(starBox);
     }
-    headLeft.append(number);
+    if (!isNatal) headLeft.append(number);
     head.append(headLeft);
     const directionMarkers = palaceMarkers[index].filter(({ type }) => type.includes('direction-deity'));
     if (directionMarkers.length) {
@@ -2629,7 +2630,6 @@ shiftStepsInput.addEventListener('change', () => {
   document.querySelector('#travel-month-section').hidden = true;
 });
 function shiftSelectedPalace(direction) {
-  if (!hasGeneratedNatalChart) return;
   const currentSteps = Number(shiftStepsInput.value);
   const nextSteps = (currentSteps + direction + 9) % 9;
   shiftStepsInput.value = String(nextSteps);

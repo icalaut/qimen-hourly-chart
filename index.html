@@ -10,9 +10,9 @@
     <link rel="apple-touch-icon" href="./icon.svg" />
     <link rel="manifest" href="./manifest.webmanifest" />
     <title>奇门遁甲排盘</title>
-    <link rel="stylesheet" href="./src/style.css?v=20261005-shift-ui" />
+    <link rel="stylesheet" href="./src/style.css?v=20261005-no-corner" />
     <script src="https://cdn.jsdelivr.net/npm/qimen-dunjia@3.1.0/dist/qimen.standalone.min.js"></script>
-    <script type="module" src="./src/main.js?v=20261005-shift-ui"></script>
+    <script type="module" src="./src/main.js?v=20261005-no-corner"></script>
   </head>
   <body>
     <div class="page-shell">
@@ -132,7 +132,7 @@
                 </label>
                 <div class="shift-settings" id="shift-settings" hidden>
                   <div class="shift-step-controls">
-                    <button class="shift-step-button" id="previous-shift-button" type="button" aria-label="向前移一宫" title="向前移一宫" disabled>‹</button>
+                    <button class="shift-step-button" id="previous-shift-button" type="button" aria-label="向前移一宫" title="向前移一宫">‹</button>
                     <select id="shift-steps" name="shiftSteps" aria-label="当前顺移宫数" disabled>
                       <option value="0">原位</option>
                       <option value="1">一宫</option>
@@ -144,7 +144,7 @@
                       <option value="7">七宫</option>
                       <option value="8">八宫</option>
                     </select>
-                    <button class="shift-step-button" id="next-shift-button" type="button" aria-label="向后移一宫" title="向后移一宫" disabled>›</button>
+                    <button class="shift-step-button" id="next-shift-button" type="button" aria-label="向后移一宫" title="向后移一宫">›</button>
                   </div>
                 </div>
               </div>
