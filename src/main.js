@@ -1585,7 +1585,7 @@ function getPalaceMarkers(chart) {
     markers[index].push({ text, title, type });
   };
 
-  if (chart.盤型 === '时盘') {
+  if (chart.盤型 === '时盘' || chart.盤型 === '命盘') {
     const dayStem = simplify(chart.日柱?.[0]);
     const auspicious = DAY_STEM_AUSPICIOUS_MARKERS[dayStem];
     if (auspicious) {
@@ -1843,18 +1843,22 @@ function getNatalPalaceRoles(chart, index) {
   const god = simplify(chart.八神?.[index]);
   if (god.includes('六合')) roles.push('姻緣');
 
-  const hourPillar = simplify(chart.時柱);
-  const hourHiddenStem = XUN_FU_SHOU[hourPillar];
-  const childParentStem = hourPillar[0] === '甲' ? hourHiddenStem : '丁';
-  if (childParentStem && simplify(chart.天盤?.[index]) === childParentStem) {
-    roles.push('子女', '父母');
-  }
-  if (simplify(chart.天盤?.[index]) === simplify(chart.月柱)[0]) {
-    roles.push('兄弟');
-  }
-  if (hourHiddenStem && simplify(chart.地盤?.[index]) === hourHiddenStem) roles.push('因果');
-  const dayHiddenStem = XUN_FU_SHOU[simplify(chart.日柱)];
-  if (dayHiddenStem && simplify(chart.天盤?.[index]) === dayHiddenStem) roles.push('元辰');
+  const xunStem = (pillar) => {
+    const cycleIndex = GANZHI_CYCLE.findIndex((item) => simplify(item) === simplify(pillar));
+    return cycleIndex < 0 ? undefined : XUN_FU_SHOU[GANZHI_CYCLE[cycleIndex - (cycleIndex % 10)]];
+  };
+  const stemPalace = (layer, stem) => {
+    const found = chart[layer]?.findIndex((item) => simplify(item) === stem) ?? -1;
+    return found === 4 ? 2 : found;
+  };
+  const hourStem = simplify(chart.時柱)[0];
+  const hourHiddenStem = xunStem(chart.時柱);
+  const childParentStem = hourStem === '甲' ? hourHiddenStem : '丁';
+  const monthStem = simplify(chart.月柱)[0];
+  if (index === stemPalace('天盤', childParentStem)) roles.push('子女', '父母');
+  if (index === stemPalace('天盤', monthStem)) roles.push('兄弟');
+  if (index === stemPalace('地盤', hourHiddenStem)) roles.push('因果');
+  if (index === stemPalace('天盤', xunStem(chart.日柱))) roles.push('元辰');
 
   const dayBranch = simplify(chart.日柱).slice(-1);
   const horseBranch = YIMA_BRANCHES[dayBranch];

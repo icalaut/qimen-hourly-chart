@@ -1,11 +1,11 @@
-const CACHE_NAME = 'qimen-time-chart-v68';
+const CACHE_NAME = 'qimen-time-chart-v70';
 const APP_SHELL = [
   './',
   './index.html',
   './manifest.webmanifest',
   './icon.svg',
-  './src/main.js?v=20261003-natal-age-in-roles2',
-  './src/style.css?v=20261003-natal-age-in-roles2',
+  './src/main.js?v=20261003-natal-yuanchen-fix',
+  './src/style.css?v=20261003-natal-yuanchen-fix',
 ];
 
 self.addEventListener('install', (event) => {
