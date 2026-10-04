@@ -2523,6 +2523,7 @@ function renderChart(chart, datetime, lunarDate) {
 
 async function generateChart(event) {
   event?.preventDefault();
+  if (event) shiftStepsInput.value = '0';
   errorMessage.hidden = true;
 
   const monthOnly = chartTypeInput.value === 'yuejia';
