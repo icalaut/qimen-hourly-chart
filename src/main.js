@@ -2647,7 +2647,7 @@ shiftStepsInput.addEventListener('change', () => {
 });
 function shiftSelectedPalace(direction) {
   const currentSteps = Number(shiftStepsInput.value);
-  const nextSteps = (currentSteps + direction + 9) % 9;
+  const nextSteps = (currentSteps + direction + SHIFT_RING.length) % SHIFT_RING.length;
   shiftStepsInput.value = String(nextSteps);
   generateChart();
 }
