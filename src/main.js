@@ -801,7 +801,9 @@ async function generateByChartType(type, datetime) {
     eightChar.setSect(1);
     return {
       ...shiftedChart,
+      八字年柱: eightChar.getYear(),
       八字日柱: eightChar.getDay(),
+      八字時柱: eightChar.getTime(),
       盤型: '命盘',
       天乙: calculateHourlyTianYi(shiftedChart),
       格局列表: getOverallFormations(shiftedChart),
@@ -1905,7 +1907,15 @@ function renderPalaces(chart) {
   const lifePalaceIndex = findNatalLifePalaceIndex(chart);
   const baziHorseNumber = chart.盤型 === '命盘' ? VOID_BRANCH_PALACES[getBaziYimaBranch(chart)] : undefined;
   const baziHorseIndex = baziHorseNumber ? PALACES.findIndex(({ number }) => Number(number) === baziHorseNumber) : -1;
-  const baziVoidBranches = chart.盤型 === '命盘' ? getVoidBranches(getBaziDayPillar(chart)) : [];
+  const baziVoidSources = new Map();
+  if (chart.盤型 === '命盘') {
+    [['年', chart.八字年柱], ['日', getBaziDayPillar(chart)], ['時', chart.八字時柱]].forEach(([label, pillar]) => {
+      getVoidBranches(simplify(pillar)).forEach((branch) => {
+        baziVoidSources.set(branch, [...(baziVoidSources.get(branch) || []), `${label}柱${simplify(pillar)}`]);
+      });
+    });
+  }
+  const baziVoidBranches = [...baziVoidSources.keys()];
   const ageRanges = getNatalAgeRanges(chart);
   const centerDoorValue = ({ 命盘: '命', 年盘: '年', 月盘: '月', 日盘: '日', 时盘: '时' })[chart.盤型]
     || chart.天門?.[4];
@@ -1976,7 +1986,7 @@ function renderPalaces(chart) {
         const voidBadge = document.createElement('span');
         voidBadge.className = 'palace-bazi-void';
         voidBadge.textContent = traditionalize(`${branch}空`);
-        voidBadge.title = traditionalize(`八字空亡：日柱${getBaziDayPillar(chart)}，旬空${baziVoidBranches.join('、')}`);
+        voidBadge.title = traditionalize(`八字空亡：${baziVoidSources.get(branch).join('、')}旬空${branch}`);
         baziBadges.append(voidBadge);
       });
     if (index === baziHorseIndex) {
