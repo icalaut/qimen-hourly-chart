@@ -1985,7 +1985,7 @@ function renderPalaces(chart) {
       .forEach((branch) => {
         const voidBadge = document.createElement('span');
         voidBadge.className = 'palace-bazi-void';
-        voidBadge.textContent = traditionalize(`${branch}空`);
+        voidBadge.textContent = `${branch}空`;
         voidBadge.title = traditionalize(`八字空亡：${baziVoidSources.get(branch).join('、')}旬空${branch}`);
         baziBadges.append(voidBadge);
       });
