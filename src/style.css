@@ -301,7 +301,7 @@ input:focus, select:focus { border-color: var(--forest); box-shadow: 0 0 0 3px r
 .flight-star-value.highlighted { color: var(--vermilion); }
 .flight-star-value.overlapped { width: 34px; height: 34px; display: grid; place-items: center; border: 1px solid currentColor; border-radius: 50%; }
 .flight-star-name { align-self: center; color: #879188; font-size: 9px; }
-.chart-insights { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 18px; padding: 14px 0; border-bottom: 1px solid var(--line); }
+.chart-insights { display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; padding: 14px 0; border-bottom: 1px solid var(--line); }
 .insight-block { min-width: 0; }
 .insight-label { margin: 0 0 8px; color: #829087; font-size: 10px; }
 .formation-list { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -311,7 +311,10 @@ input:focus, select:focus { border-color: var(--forest); box-shadow: 0 0 0 3px r
 .formation-place { color: #8a948b; }
 .formation-reading { color: #8a692e; font-size: 9px; }
 .formation-empty { color: #859087; font-size: 11px; }
-.tianyi-block { min-width: 105px; padding-left: 15px; border-left: 1px solid var(--line); }
+.chart-top-summary { margin-bottom: 14px; }
+.chart-top-summary .insight-block:not(.tianyi-block) { padding: 0 0 12px; }
+.chart-top-summary .tianyi-block { padding: 0 0 10px; }
+.chart-top-summary .hub-list { border-top: 1px solid var(--line); }
 .tianyi-value { margin: 0; color: var(--forest); font-size: 14px; font-weight: 600; }
 .palace {
   position: relative;
@@ -459,8 +462,6 @@ input:focus, select:focus { border-color: var(--forest); box-shadow: 0 0 0 3px r
   .basis-note { margin-top: 17px; padding-top: 12px; }
   .chart-area { padding: 23px 20px 24px; }
   .flight-grid { grid-template-columns: 1fr; }
-  .chart-insights { grid-template-columns: minmax(0, 1fr) 100px; gap: 10px; }
-  .tianyi-block { min-width: 0; padding-left: 10px; }
   .tianyi-value { font-size: 12px; }
   .empty-state { min-height: 320px; }
 }
@@ -514,8 +515,6 @@ input:focus, select:focus { border-color: var(--forest); box-shadow: 0 0 0 3px r
   .seven-star-cards { grid-template-columns: 1fr; }
   .travel-month-table th, .travel-month-table td { padding: 8px 6px; }
   .travel-month-table th:first-child, .travel-month-table td:first-child { width: 76px; }
-  .chart-insights { grid-template-columns: minmax(0, 1fr) 83px; gap: 7px; }
-  .tianyi-block { padding-left: 7px; }
   .palace { min-height: 0; aspect-ratio: 1; padding: 0; }
   .palace-layers { inset: 18px 2px 18px; }
   .palace-head { font-size: 9px; }

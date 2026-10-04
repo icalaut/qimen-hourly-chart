@@ -802,8 +802,8 @@ async function generateByChartType(type, datetime) {
       ...shiftedChart,
       八字日柱: eightChar.getDay(),
       盤型: '命盘',
-      天乙: calculateHourlyTianYi(timeChart),
-      格局列表: getOverallFormations(timeChart),
+      天乙: calculateHourlyTianYi(shiftedChart),
+      格局列表: getOverallFormations(shiftedChart),
       展示說明: `个人命盘按所填出生时刻，以时家转盘法生成${shiftInput.checked ? `，${shiftStepLabel(shiftStepsInput.value)}` : ''}。`,
       移星換斗對照: shiftInput.checked ? { before: timeChart, after: shiftedChart } : null,
     };

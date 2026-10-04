@@ -10,9 +10,9 @@
     <link rel="apple-touch-icon" href="./icon.svg" />
     <link rel="manifest" href="./manifest.webmanifest" />
     <title>奇门遁甲排盘</title>
-    <link rel="stylesheet" href="./src/style.css?v=20261005-no-corner" />
+    <link rel="stylesheet" href="./src/style.css?v=20261005-top-summary2" />
     <script src="https://cdn.jsdelivr.net/npm/qimen-dunjia@3.1.0/dist/qimen.standalone.min.js"></script>
-    <script type="module" src="./src/main.js?v=20261005-no-corner"></script>
+    <script type="module" src="./src/main.js?v=20261005-top-summary2"></script>
   </head>
   <body>
     <div class="page-shell">
@@ -233,6 +233,18 @@
                 <span class="method-tag" id="method-tag">拆补法</span>
               </div>
 
+              <div class="chart-top-summary">
+                <section class="insight-block" aria-labelledby="formation-title">
+                  <p class="insight-label" id="formation-title">全盘格局</p>
+                  <div class="formation-list" id="formation-list"></div>
+                </section>
+                <section class="insight-block tianyi-block" aria-labelledby="tianyi-title">
+                  <p class="insight-label" id="tianyi-title">天乙</p>
+                  <p class="tianyi-value" id="tianyi-value">—</p>
+                </section>
+                <div class="hub-list" id="hub-list"></div>
+              </div>
+
               <div class="pillars" id="pillars" aria-label="四柱"></div>
 
               <div class="chart-frame" aria-label="九宫盘方位框架">
@@ -311,19 +323,8 @@
                 <div class="flight-grid" id="flight-grid"></div>
               </section>
 
-              <div class="chart-insights">
-                <section class="insight-block" aria-labelledby="formation-title">
-                  <p class="insight-label" id="formation-title">全盘格局</p>
-                  <div class="formation-list" id="formation-list"></div>
-                </section>
-                <section class="insight-block tianyi-block" aria-labelledby="tianyi-title">
-                  <p class="insight-label" id="tianyi-title">天乙</p>
-                  <p class="tianyi-value" id="tianyi-value">—</p>
-                </section>
-              </div>
 
               <div class="chart-footer">
-                <div class="hub-list" id="hub-list"></div>
                 <p class="source-note" id="source-note" hidden></p>
               </div>
             </div>
