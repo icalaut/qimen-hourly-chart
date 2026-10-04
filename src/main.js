@@ -801,9 +801,7 @@ async function generateByChartType(type, datetime) {
     eightChar.setSect(1);
     return {
       ...shiftedChart,
-      八字年柱: eightChar.getYear(),
       八字日柱: eightChar.getDay(),
-      八字時柱: eightChar.getTime(),
       盤型: '命盘',
       天乙: calculateHourlyTianYi(shiftedChart),
       格局列表: getOverallFormations(shiftedChart),
@@ -1912,7 +1910,7 @@ function renderPalaces(chart) {
   const baziHorseIndex = baziHorseNumber ? PALACES.findIndex(({ number }) => Number(number) === baziHorseNumber) : -1;
   const baziVoidSources = new Map();
   if (chart.盤型 === '命盘') {
-    [['年', chart.八字年柱], ['日', getBaziDayPillar(chart)], ['時', chart.八字時柱]].forEach(([label, pillar]) => {
+    [['日', getBaziDayPillar(chart)]].forEach(([label, pillar]) => {
       getVoidBranches(simplify(pillar)).forEach((branch) => {
         baziVoidSources.set(branch, [...(baziVoidSources.get(branch) || []), `${label}柱${simplify(pillar)}`]);
       });
