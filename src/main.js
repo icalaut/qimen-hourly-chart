@@ -1937,6 +1937,26 @@ function renderPalaces(chart) {
   const tianqinIndex = chart.九星?.findIndex((star) => simplify(star) === '天禽') ?? -1;
   const tianqinStem = tianqinIndex >= 0 ? chart.天盤?.[tianqinIndex] : undefined;
   const tianqinStemMatches = getStemMatches(tianqinStem);
+  const effectivePillarStem = (stem, xunStem) => (stem === '甲' ? xunStem : stem);
+  const dayTargetStem = effectivePillarStem(dayStem, dayXunStem);
+  const hourTargetStem = effectivePillarStem(hourStem, hourXunStem);
+  const getDayHourTag = (value) => {
+    if (chart.盤型 !== '时盘') return '';
+    const stem = simplify(value);
+    return `${stem === dayTargetStem ? '日' : ''}${stem === hourTargetStem ? '时' : ''}`;
+  };
+  const appendDayHourTag = (container, anchor, value) => {
+    const tag = getDayHourTag(value);
+    if (!tag || !anchor) return;
+    const wrapper = document.createElement('span');
+    wrapper.className = 'stem-with-tag';
+    const label = document.createElement('span');
+    label.className = 'stem-day-hour-tag';
+    label.textContent = traditionalize(tag);
+    label.title = traditionalize(`天盘干对应${tag === '日' ? '日柱' : tag === '时' ? '时柱' : '日柱与时柱'}天干`);
+    anchor.replaceWith(wrapper);
+    wrapper.append(anchor, label);
+  };
 
   PALACES.forEach((palace, index) => {
     const cell = document.createElement('article');
@@ -2052,6 +2072,7 @@ function renderPalaces(chart) {
       ? []
       : getStemMatches(chart.天盤?.[index]);
     const heavenLayer = makeLayer('heaven', '天', chart.天盤?.[index], heavenStemMatches, getStemTwelveStages(chart.天盤?.[index], Number(palace.number)));
+    appendDayHourTag(heavenLayer, heavenLayer.querySelector('.layer-value-content > span:last-child'), chart.天盤?.[index]);
     if (index === tianruiIndex && tianqinIndex >= 0) {
       const tianqinStar = document.createElement('span');
       tianqinStar.className = 'tianqin-element tianqin-star-companion';
@@ -2073,6 +2094,7 @@ function renderPalaces(chart) {
         const stemElement = STEM_ELEMENTS[simplify(tianqinStem)[0]];
         if (stemElement) stemCompanion.dataset.element = stemElement;
         stemCompanionGroup.append(stemCompanion);
+        appendDayHourTag(stemCompanionGroup, stemCompanion, tianqinStem);
         heavenLayer.classList.add('with-tianqin-stem');
         heavenLayer.insertBefore(stemCompanionGroup, heavenLayer.firstChild);
       }
