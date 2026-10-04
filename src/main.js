@@ -1904,7 +1904,10 @@ function renderPalaces(chart) {
   const grid = document.querySelector('#chart-grid');
   grid.replaceChildren();
   const palaceMarkers = getPalaceMarkers(chart);
-  const lifePalaceIndex = findNatalLifePalaceIndex(chart);
+  const natalBase = chart.移星換斗對照?.before
+    ? { ...chart, ...Object.fromEntries(['八神', '九星', '天門', '天盤', '地盤'].map((field) => [field, chart.移星換斗對照.before[field]])) }
+    : chart;
+  const lifePalaceIndex = findNatalLifePalaceIndex(natalBase);
   const baziHorseNumber = chart.盤型 === '命盘' ? VOID_BRANCH_PALACES[getBaziYimaBranch(chart)] : undefined;
   const baziHorseIndex = baziHorseNumber ? PALACES.findIndex(({ number }) => Number(number) === baziHorseNumber) : -1;
   const baziVoidSources = new Map();
@@ -2099,7 +2102,7 @@ function renderPalaces(chart) {
     }
     if (hexagram) cell.append(hexagram);
     cell.append(layers, markers);
-    const roles = getNatalPalaceRoles(chart, index);
+    const roles = getNatalPalaceRoles(natalBase, index);
     const ageRange = ageRanges.get(index);
     if (roles.length || ageRange) {
       const roleSection = document.createElement('div');
