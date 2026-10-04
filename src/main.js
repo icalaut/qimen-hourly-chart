@@ -52,7 +52,6 @@ const shiftInput = document.querySelector('#shift-toggle');
 const shiftStepsInput = document.querySelector('#shift-steps');
 const previousShiftButton = document.querySelector('#previous-shift-button');
 const nextShiftButton = document.querySelector('#next-shift-button');
-const shiftStepStatus = document.querySelector('#shift-step-status');
 const form = document.querySelector('#chart-form');
 const result = document.querySelector('#result');
 const emptyState = document.querySelector('#empty-state');
@@ -136,6 +135,15 @@ const YIMA_BRANCHES = {
   巳: '亥', 酉: '亥', 丑: '亥',
   亥: '巳', 卯: '巳', 未: '巳',
 };
+
+function getBaziDayPillar(chart) {
+  return simplify(chart?.八字日柱 || chart?.日柱);
+}
+
+function getBaziYimaBranch(chart) {
+  const dayBranch = getBaziDayPillar(chart)?.slice(-1);
+  return YIMA_BRANCHES[dayBranch];
+}
 const OVERALL_PATTERN_NAMES = new Set(['反吟', '伏吟', '五不遇時', '截路空亡']);
 const TIME_ONLY_PATTERN_NAMES = new Set(['五不遇時', '截路空亡']);
 const STAR_HOME_POSITIONS = { 天蓬: 1, 天芮: 2, 天冲: 3, 天辅: 4, 天禽: 5, 天心: 6, 天柱: 7, 天任: 8, 天英: 9 };
@@ -784,11 +792,18 @@ async function generateByChartType(type, datetime) {
   }
   if (type === 'mingpan') {
     const shiftedChart = shiftInput.checked ? applyStarShift(timeChart, Number(shiftStepsInput.value)) : timeChart;
+    lunarEnginePromise ||= import(LUNAR_ENGINE_URL);
+    const { Solar } = await lunarEnginePromise;
+    const eightChar = Solar.fromYmdHms(
+      Number(datetime.slice(0, 4)), Number(datetime.slice(4, 6)), Number(datetime.slice(6, 8)),
+      Number(datetime.slice(8, 10)), 0, 0,
+    ).getLunar().getEightChar();
     return {
       ...shiftedChart,
+      八字日柱: eightChar.getDay(),
       盤型: '命盘',
-      天乙: calculateHourlyTianYi(shiftedChart),
-      格局列表: getOverallFormations(shiftedChart),
+      天乙: calculateHourlyTianYi(timeChart),
+      格局列表: getOverallFormations(timeChart),
       展示說明: `个人命盘按所填出生时刻，以时家转盘法生成${shiftInput.checked ? `，${shiftStepLabel(shiftStepsInput.value)}` : ''}。`,
       移星換斗對照: shiftInput.checked ? { before: timeChart, after: shiftedChart } : null,
     };
@@ -880,8 +895,7 @@ function updateChartTypeControls() {
   const canShift = type === 'mingpan' && hasGeneratedNatalChart;
   previousShiftButton.disabled = !canShift;
   nextShiftButton.disabled = !canShift;
-  shiftStepsInput.disabled = !canShift;
-  shiftStepStatus.textContent = traditionalize(canShift ? shiftStepLabel(shiftStepsInput.value) : '尚未生成命盘');
+  shiftStepsInput.disabled = true;
   document.querySelector('#mode-hint').textContent = traditionalize(MODE_HINTS[type]);
   document.querySelector('.field-heading').hidden = !needsHour;
   document.querySelector('.time-input-row').hidden = !needsHour;
@@ -1586,7 +1600,7 @@ function getPalaceMarkers(chart) {
   };
 
   if (chart.盤型 === '时盘' || chart.盤型 === '命盘') {
-    const dayStem = simplify(chart.日柱?.[0]);
+    const dayStem = getBaziDayPillar(chart)?.[0];
     const auspicious = DAY_STEM_AUSPICIOUS_MARKERS[dayStem];
     if (auspicious) {
       const palaceIndex = (number) => PALACES.findIndex(({ number: palaceNumber }) => Number(palaceNumber) === number);
@@ -1820,7 +1834,7 @@ function getPalaceMarkers(chart) {
 
 function findNatalLifePalaceIndex(chart) {
   if (chart.盤型 !== '命盘') return -1;
-  const dayPillar = simplify(chart.日柱);
+  const dayPillar = getBaziDayPillar(chart);
   const cycleIndex = GANZHI_CYCLE.findIndex((item) => simplify(item) === dayPillar);
   if (cycleIndex < 0) return -1;
   const dayStem = dayPillar[0];
@@ -1841,29 +1855,28 @@ function getNatalPalaceRoles(chart, index) {
   if (star.includes('天芮')) roles.push('健康');
 
   const god = simplify(chart.八神?.[index]);
-  if (god.includes('六合')) roles.push('姻緣');
+  if (god.includes('六合')) roles.push('婚姻');
 
   const xunStem = (pillar) => {
     const cycleIndex = GANZHI_CYCLE.findIndex((item) => simplify(item) === simplify(pillar));
     return cycleIndex < 0 ? undefined : XUN_FU_SHOU[GANZHI_CYCLE[cycleIndex - (cycleIndex % 10)]];
   };
-  const stemPalace = (layer, stem) => {
-    const found = chart[layer]?.findIndex((item) => simplify(item) === stem) ?? -1;
-    return found === 4 ? 2 : found;
-  };
+  const stemPalace = (layer, stem) => chart[layer]?.findIndex((item) => simplify(item) === stem) ?? -1;
   const hourStem = simplify(chart.時柱)[0];
+  const yearStem = simplify(chart.年柱)[0];
   const hourHiddenStem = xunStem(chart.時柱);
-  const childParentStem = hourStem === '甲' ? hourHiddenStem : '丁';
+  const childStem = hourStem === '甲' ? hourHiddenStem : hourStem;
+  const parentStem = yearStem === '甲' ? hourHiddenStem : yearStem;
   const monthStem = simplify(chart.月柱)[0];
-  if (index === stemPalace('天盤', childParentStem)) roles.push('子女', '父母');
+  if (index === stemPalace('天盤', childStem)) roles.push('子女');
+  if (index === stemPalace('天盤', parentStem)) roles.push('父母');
   if (index === stemPalace('天盤', monthStem)) roles.push('兄弟');
   if (index === stemPalace('地盤', hourHiddenStem)) roles.push('因果');
   if (index === stemPalace('天盤', xunStem(chart.日柱))) roles.push('元辰');
 
-  const dayBranch = simplify(chart.日柱).slice(-1);
-  const horseBranch = YIMA_BRANCHES[dayBranch];
-  const horsePalace = VOID_BRANCH_PALACES[horseBranch];
-  if (Number(PALACES[index]?.number) === horsePalace) roles.push('遷移');
+  const horsePalace = VOID_BRANCH_PALACES[getBaziYimaBranch(chart)];
+  const horseIndex = PALACES.findIndex(({ number }) => Number(number) === horsePalace);
+  if (horseIndex >= 0 && index === horseIndex) roles.push('遷移');
   return roles;
 }
 
@@ -1889,6 +1902,9 @@ function renderPalaces(chart) {
   grid.replaceChildren();
   const palaceMarkers = getPalaceMarkers(chart);
   const lifePalaceIndex = findNatalLifePalaceIndex(chart);
+  const baziHorseNumber = chart.盤型 === '命盘' ? VOID_BRANCH_PALACES[getBaziYimaBranch(chart)] : undefined;
+  const baziHorseIndex = baziHorseNumber ? PALACES.findIndex(({ number }) => Number(number) === baziHorseNumber) : -1;
+  const baziVoidBranches = chart.盤型 === '命盘' ? getVoidBranches(getBaziDayPillar(chart)) : [];
   const ageRanges = getNatalAgeRanges(chart);
   const centerDoorValue = ({ 命盘: '命', 年盘: '年', 月盘: '月', 日盘: '日', 时盘: '时' })[chart.盤型]
     || chart.天門?.[4];
@@ -1943,6 +1959,32 @@ function renderPalaces(chart) {
       });
       head.append(topMarkers);
     }
+    const baziBadges = document.createElement('span');
+    baziBadges.className = 'palace-bazi-badges';
+    if (index === lifePalaceIndex) {
+      const lifeMark = document.createElement('span');
+      lifeMark.className = 'life-palace-mark';
+      lifeMark.textContent = traditionalize('命');
+      lifeMark.title = traditionalize('本命宫（出生日干所在宫位）');
+      baziBadges.append(lifeMark);
+    }
+    baziVoidBranches
+      .filter((branch) => VOID_BRANCH_PALACES[branch] === Number(palace.number))
+      .forEach((branch) => {
+        const voidBadge = document.createElement('span');
+        voidBadge.className = 'palace-bazi-void';
+        voidBadge.textContent = traditionalize(`${branch}空`);
+        voidBadge.title = traditionalize(`八字空亡：日柱${getBaziDayPillar(chart)}，旬空${baziVoidBranches.join('、')}`);
+        baziBadges.append(voidBadge);
+      });
+    if (index === baziHorseIndex) {
+      const horseBadge = document.createElement('span');
+      horseBadge.className = 'palace-bazi-horse';
+      horseBadge.textContent = traditionalize('马');
+      horseBadge.title = traditionalize(`八字驿马：日柱${getBaziDayPillar(chart)}，驿马在${getBaziYimaBranch(chart)}`);
+      baziBadges.append(horseBadge);
+    }
+    if (baziBadges.childElementCount) head.append(baziBadges);
     if (index !== 4) {
       const elementLabel = document.createElement('span');
       elementLabel.className = 'palace-element-label';
@@ -1954,7 +1996,7 @@ function renderPalaces(chart) {
     const name = document.createElement('div');
     name.className = 'palace-name';
     name.textContent = traditionalize(palace.name);
-    const hexagramData = index === 4 ? null : getPalaceHexagram(chart, index);
+    const hexagramData = chart.盤型 === '命盘' || index === 4 ? null : getPalaceHexagram(chart, index);
     const hexagram = hexagramData ? document.createElement('div') : null;
     if (hexagram && hexagramData) {
       hexagram.className = 'palace-hexagram';
@@ -2042,11 +2084,6 @@ function renderPalaces(chart) {
     cell.append(head, name);
     if (index === lifePalaceIndex) {
       cell.classList.add('life-palace');
-      const lifeMark = document.createElement('span');
-      lifeMark.className = 'life-palace-mark';
-      lifeMark.textContent = traditionalize('命');
-      lifeMark.title = traditionalize('本命宫（出生日干所在宫位）');
-      cell.append(lifeMark);
     }
     if (hexagram) cell.append(hexagram);
     cell.append(layers, markers);
@@ -2590,7 +2627,6 @@ shiftInput.addEventListener('change', () => {
 });
 shiftStepsInput.addEventListener('change', () => {
   document.querySelector('#travel-month-section').hidden = true;
-  shiftStepStatus.textContent = traditionalize(shiftStepLabel(shiftStepsInput.value));
 });
 function shiftSelectedPalace(direction) {
   if (!hasGeneratedNatalChart) return;
@@ -2625,7 +2661,6 @@ function resetOutputAndInputs(chartType) {
   document.querySelector('#travel-month-section').hidden = true;
   document.querySelector('#seven-star-section').hidden = true;
   document.querySelector('#eight-god-section').hidden = true;
-  document.querySelector('#shift-step-status').textContent = traditionalize('尚未生成命盘');
   document.querySelector('#flight-grid').replaceChildren();
   renderPrediction(null);
   updateChartTypeControls();
