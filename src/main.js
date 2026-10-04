@@ -2251,9 +2251,14 @@ function renderInsights(chart) {
   const container = document.querySelector('#formation-list');
   container.replaceChildren();
   const formations = chart.格局列表 || [];
-  container.closest('.insight-block').hidden = formations.length === 0;
+  container.closest('.insight-block').hidden = false;
 
-  if (formations.length > 0) {
+  if (formations.length === 0) {
+    const empty = document.createElement('span');
+    empty.className = 'formation-empty';
+    empty.textContent = '—';
+    container.append(empty);
+  } else {
     formations.forEach((formation) => {
       const chip = document.createElement('span');
       chip.className = 'formation-chip';

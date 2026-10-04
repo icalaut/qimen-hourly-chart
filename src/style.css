@@ -311,9 +311,10 @@ input:focus, select:focus { border-color: var(--forest); box-shadow: 0 0 0 3px r
 .formation-place { color: #8a948b; }
 .formation-reading { color: #8a692e; font-size: 9px; }
 .formation-empty { color: #859087; font-size: 11px; }
-.chart-top-summary { margin-bottom: 14px; }
+.chart-top-summary { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0 18px; margin-bottom: 14px; }
+.chart-top-summary .hub-list { grid-column: 1 / -1; }
 .chart-top-summary .insight-block:not(.tianyi-block) { padding: 0 0 12px; }
-.chart-top-summary .tianyi-block { padding: 0 0 10px; }
+.chart-top-summary .tianyi-block { min-width: 105px; padding: 0 0 10px 15px; border-left: 1px solid var(--line); }
 .chart-top-summary .hub-list { border-top: 1px solid var(--line); }
 .tianyi-value { margin: 0; color: var(--forest); font-size: 14px; font-weight: 600; }
 .palace {
