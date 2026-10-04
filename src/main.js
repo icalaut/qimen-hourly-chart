@@ -1818,10 +1818,74 @@ function getPalaceMarkers(chart) {
   return markers;
 }
 
+function findNatalLifePalaceIndex(chart) {
+  if (chart.盤型 !== '命盘') return -1;
+  const dayPillar = simplify(chart.日柱);
+  const cycleIndex = GANZHI_CYCLE.findIndex((item) => simplify(item) === dayPillar);
+  if (cycleIndex < 0) return -1;
+  const dayStem = dayPillar[0];
+  const stem = dayStem === '甲' ? XUN_FU_SHOU[GANZHI_CYCLE[cycleIndex]] : dayStem;
+  const index = chart.天盤?.findIndex((item) => simplify(item) === stem) ?? -1;
+  return index === 4 ? 2 : index;
+}
+
+const NATAL_DOOR_ROLES = { 开: '事业', 休: '家庭', 生: '财帛', 伤: '地位', 杜: '智慧', 死: '田宅', 惊: '心灵', 景: '形象' };
+
+function getNatalPalaceRoles(chart, index) {
+  if (chart.盤型 !== '命盘') return [];
+  const roles = [];
+  const door = simplify(chart.天門?.[index])[0];
+  if (NATAL_DOOR_ROLES[door]) roles.push(NATAL_DOOR_ROLES[door]);
+  const star = simplify(chart.九星?.[index]);
+  if (star.includes('天辅')) roles.push('教育');
+  if (star.includes('天芮')) roles.push('健康');
+
+  const god = simplify(chart.八神?.[index]);
+  if (god.includes('六合')) roles.push('姻緣');
+
+  const hourPillar = simplify(chart.時柱);
+  const hourHiddenStem = XUN_FU_SHOU[hourPillar];
+  const childParentStem = hourPillar[0] === '甲' ? hourHiddenStem : '丁';
+  if (childParentStem && simplify(chart.天盤?.[index]) === childParentStem) {
+    roles.push('子女', '父母');
+  }
+  if (simplify(chart.天盤?.[index]) === simplify(chart.月柱)[0]) {
+    roles.push('兄弟');
+  }
+  if (hourHiddenStem && simplify(chart.地盤?.[index]) === hourHiddenStem) roles.push('因果');
+  const dayHiddenStem = XUN_FU_SHOU[simplify(chart.日柱)];
+  if (dayHiddenStem && simplify(chart.天盤?.[index]) === dayHiddenStem) roles.push('元辰');
+
+  const dayBranch = simplify(chart.日柱).slice(-1);
+  const horseBranch = YIMA_BRANCHES[dayBranch];
+  const horsePalace = VOID_BRANCH_PALACES[horseBranch];
+  if (Number(PALACES[index]?.number) === horsePalace) roles.push('遷移');
+  return roles;
+}
+
+const LIFE_AGE_RING = [7, 6, 3, 0, 1, 2, 5, 8];
+
+function getNatalAgeRanges(chart) {
+  const ranges = new Map();
+  if (chart.盤型 !== '命盘') return ranges;
+  const yearBranch = simplify(chart.年柱).slice(-1);
+  const yearPalace = VOID_BRANCH_PALACES[yearBranch];
+  const yearPalaceIndex = PALACES.findIndex(({ number }) => Number(number) === yearPalace);
+  const start = LIFE_AGE_RING.indexOf(yearPalaceIndex);
+  if (start < 0) return ranges;
+  LIFE_AGE_RING.forEach((_, step) => {
+    const ringIndex = (start + step) % LIFE_AGE_RING.length;
+    ranges.set(LIFE_AGE_RING[ringIndex], `${step * 10 + 1}-${step * 10 + 10}`);
+  });
+  return ranges;
+}
+
 function renderPalaces(chart) {
   const grid = document.querySelector('#chart-grid');
   grid.replaceChildren();
   const palaceMarkers = getPalaceMarkers(chart);
+  const lifePalaceIndex = findNatalLifePalaceIndex(chart);
+  const ageRanges = getNatalAgeRanges(chart);
   const centerDoorValue = ({ 命盘: '命', 年盘: '年', 月盘: '月', 日盘: '日', 时盘: '时' })[chart.盤型]
     || chart.天門?.[4];
   const hourStem = simplify(chart.時柱?.[0]);
@@ -1954,10 +2018,11 @@ function renderPalaces(chart) {
         heavenLayer.insertBefore(stemCompanionGroup, heavenLayer.firstChild);
       }
     }
+    const doorLayer = makeLayer('door', '门', index === 4 ? centerDoorValue : chart.天門?.[index]);
     layers.append(
       makeLayer('god', '神', chart.八神?.[index]),
       starLayer,
-      makeLayer('door', '门', index === 4 ? centerDoorValue : chart.天門?.[index]),
+      doorLayer,
       heavenLayer,
       makeLayer('earth', '地', chart.地盤?.[index], [], getStemTwelveStages(chart.地盤?.[index], Number(palace.number))),
     );
@@ -1971,8 +2036,43 @@ function renderPalaces(chart) {
       markers.append(badge);
     });
     cell.append(head, name);
+    if (index === lifePalaceIndex) {
+      cell.classList.add('life-palace');
+      const lifeMark = document.createElement('span');
+      lifeMark.className = 'life-palace-mark';
+      lifeMark.textContent = traditionalize('命');
+      lifeMark.title = traditionalize('本命宫（出生日干所在宫位）');
+      cell.append(lifeMark);
+    }
     if (hexagram) cell.append(hexagram);
     cell.append(layers, markers);
+    const roles = getNatalPalaceRoles(chart, index);
+    const ageRange = ageRanges.get(index);
+    if (roles.length || ageRange) {
+      const roleSection = document.createElement('div');
+      roleSection.className = 'palace-roles';
+      if (ageRange) {
+        const age = document.createElement('span');
+        age.className = 'palace-age';
+        age.textContent = ageRange;
+        age.title = traditionalize('年龄段：从出生年支对应宫起，顺时针每宫十年');
+        roleSection.append(age);
+      }
+      if (roles.length) {
+        const roleList = document.createElement('div');
+        roleList.className = 'palace-role-list';
+        roles.forEach((role) => {
+          const item = document.createElement('span');
+          item.className = 'palace-role';
+          item.textContent = traditionalize(role);
+          item.title = traditionalize(`${role}宫`);
+          roleList.append(item);
+        });
+        roleSection.append(roleList);
+        cell.classList.add('has-roles');
+      }
+      cell.append(roleSection);
+    }
     grid.append(cell);
   });
 }

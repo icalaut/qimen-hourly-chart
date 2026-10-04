@@ -352,11 +352,19 @@ input:focus, select:focus { border-color: var(--forest); box-shadow: 0 0 0 3px r
 .palace-marker { max-width: 100%; overflow: hidden; padding: 1px 3px; border: 1px solid #d5ddd4; border-radius: 2px; color: #5f6b62; background: #f6f8f3; font-size: 8px; line-height: 1.2; text-overflow: ellipsis; white-space: nowrap; }
 .palace-marker.direction-deity { display: grid; flex: 0 0 15px; place-items: center; width: 15px; height: 15px; padding: 0; border-color: #e60012; border-radius: 50%; color: #e60012; background: #fff; font-weight: 700; line-height: 1; text-overflow: clip; }
 .palace-marker.direction-deity-filled { color: #fff; background: #e60012; }
+.palace-roles { position: absolute; right: 0; bottom: 0; left: 0; z-index: 1; display: flex; justify-content: center; align-items: center; gap: 8px; min-height: 32px; padding: 3px 4px; border-top: 1px solid #c4cbe8; background: rgb(238 240 250 / 85%); }
+.palace-age { color: #8a3b00; font: 700 9px/1 'DM Mono', monospace; white-space: nowrap; }
+.palace-role-list { display: flex; justify-content: center; align-items: flex-start; gap: 4px; }
+.palace-role { display: block; width: 1em; color: #3b4a8a; font: 600 10px/1.15 'Noto Serif TC', serif; text-align: center; word-break: break-all; overflow-wrap: anywhere; }
+.palace.has-roles .palace-layers { bottom: 42px; }
+.palace.has-roles .palace-markers { bottom: 35px; }
 .palace-marker.void { color: #765a28; border-color: #e2d6c2; background: #f5f0e6; }
 .palace-marker.void-filled { color: #fff; border-color: #765a28; background: #765a28; font-weight: 600; }
 .palace-marker.overcoming { color: #a14836; border-color: #e0b8ad; background: #fbefeb; }
 .palace-marker.auspicious { color: var(--forest); border-color: #c9dacb; background: #edf4ed; }
 .palace-marker.victory { color: #fff; border-color: #245a49; background: #245a49; font-weight: 600; }
+.palace.life-palace { box-shadow: inset 0 0 0 2px #e60012; }
+.life-palace-mark { position: absolute; top: 2px; right: 2px; z-index: 2; display: grid; place-items: center; width: 16px; height: 16px; border: 1.5px solid #e60012; border-radius: 50%; color: #e60012; background: #fff; font: 700 10px/1 'Noto Serif TC', serif; }
 .layer { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; justify-self: center; align-self: start; gap: 1px; width: 32px; height: 32px; min-width: 0; padding-top: 2px; font-size: 11px; line-height: 1.1; text-align: center; white-space: normal; }
 .layer-label { display: none; color: #7e887f; font-size: 8px; }
 .layer.god { color: #000; }
@@ -458,6 +466,9 @@ input:focus, select:focus { border-color: var(--forest); box-shadow: 0 0 0 3px r
   .layer { width: 100%; height: 100%; font-size: 10px; }
   .layer.door { border-width: 1px; padding-top: 0; font-size: 16px; }
   .palace-markers { position: relative; right: auto; bottom: auto; left: auto; display: flex; max-height: none; overflow: visible; }
+  .palace-roles { position: relative; right: auto; bottom: auto; left: auto; min-height: 0; margin-top: 2px; }
+  .palace.has-roles .palace-layers { bottom: auto; }
+  .palace.has-roles .palace-markers { bottom: auto; }
   .palace-marker { font-size: 7px; }
 }
 
@@ -504,6 +515,9 @@ input:focus, select:focus { border-color: var(--forest); box-shadow: 0 0 0 3px r
   .layer.heaven.with-tianqin-stem { width: 32px; gap: 1px; }
   .matched-stem { flex-basis: 18px; width: 18px; height: 18px; }
   .palace-markers { position: relative; right: auto; bottom: auto; left: auto; display: grid; grid-template-columns: minmax(0, 1fr); gap: 2px; max-height: none; overflow: visible; align-content: flex-start; }
+  .palace-roles { position: relative; right: auto; bottom: auto; left: auto; min-height: 0; margin-top: 2px; }
+  .palace.has-roles .palace-layers { bottom: auto; }
+  .palace.has-roles .palace-markers { bottom: auto; }
   .palace-marker { padding: 1px 2px; font-size: 8px; line-height: 1.2; white-space: normal; overflow-wrap: anywhere; }
   .palace-marker.long { grid-column: 1 / -1; }
   .hub-item { padding: 0 5px; }
