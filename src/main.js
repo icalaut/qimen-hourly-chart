@@ -43,7 +43,8 @@ const predictionTopicInput = document.querySelector('#prediction-topic');
 const predictionDirectionInput = document.querySelector('#prediction-direction');
 const predictionPersonStemInput = document.querySelector('#prediction-person-stem');
 const travelInput = document.querySelector('#travel-toggle');
-const personalThreeVictoryInput = document.querySelector('#personal-three-victory-toggle');
+const natalThreeVictoryInput = document.querySelector('#natal-three-victory-toggle');
+const natalThreeVictoryMonthInput = document.querySelector('#natal-three-victory-month');
 const eightGodInput = document.querySelector('#eight-god-toggle');
 const travelMonthInput = document.querySelector('#travel-month');
 const eightGodTargetInput = document.querySelector('#eight-god-target');
@@ -349,6 +350,7 @@ let layerEnginePromise;
 let lunarEnginePromise;
 let traditionalizerPromise;
 const eightGodScanCache = new Map();
+const natalThreeVictoryScanCache = new Map();
 let hasGeneratedNatalChart = false;
 let lastRenderedChart = null;
 let traditionalize = (value) => String(value ?? '—');
@@ -867,7 +869,7 @@ function updateChartTypeControls() {
   monthInput.disabled = !monthOnly;
   monthInput.required = monthOnly;
   dateInput.disabled = monthOnly || yearOnly;
-  const usesMonthlyScan = travelInput.checked || personalThreeVictoryInput.checked;
+  const usesMonthlyScan = travelInput.checked;
   document.querySelector('#prediction-option').hidden = type !== 'shijia';
   const needsPredictionDirection = ['invite', 'migration'].includes(predictionTopicInput.value);
   const needsPredictionPersonStem = predictionTopicInput.value === 'prisonerRelease';
@@ -880,19 +882,22 @@ function updateChartTypeControls() {
   predictionDirectionInput.disabled = type !== 'shijia' || !needsPredictionDirection;
   predictionPersonStemInput.disabled = type !== 'shijia' || !needsPredictionPersonStem;
   document.querySelector('#travel-option').hidden = type !== 'mingpan';
-  document.querySelector('#personal-three-victory-option').hidden = type !== 'mingpan';
+  document.querySelector('#natal-three-victory-option').hidden = type !== 'mingpan';
   document.querySelector('#eight-god-option').hidden = type !== 'mingpan';
   document.querySelector('#travel-month-option').hidden = type !== 'mingpan' || !usesMonthlyScan;
+  const usesNatalThreeVictoryScan = type === 'mingpan' && natalThreeVictoryInput.checked;
+  document.querySelector('#natal-three-victory-settings').hidden = !usesNatalThreeVictoryScan;
   document.querySelector('#eight-god-settings').hidden = type !== 'mingpan' || !eightGodInput.checked;
   document.querySelector('#shift-option').hidden = type !== 'mingpan';
   document.querySelector('#shift-settings').hidden = type !== 'mingpan' || !shiftInput.checked;
   travelInput.disabled = type !== 'mingpan';
-  personalThreeVictoryInput.disabled = type !== 'mingpan';
+  natalThreeVictoryInput.disabled = type !== 'mingpan';
   eightGodInput.disabled = type !== 'mingpan';
   eightGodTargetInput.disabled = type !== 'mingpan' || !eightGodInput.checked;
   eightGodMonthInput.disabled = type !== 'mingpan' || !eightGodInput.checked;
   shiftInput.disabled = type !== 'mingpan';
   travelMonthInput.disabled = !(type === 'mingpan' && usesMonthlyScan);
+  natalThreeVictoryMonthInput.disabled = !usesNatalThreeVictoryScan;
   const canShift = type === 'mingpan';
   previousShiftButton.disabled = !canShift;
   nextShiftButton.disabled = !canShift;
@@ -936,7 +941,7 @@ async function getMonthlyTravelGuidance(monthValue) {
   return [...months.values()];
 }
 
-function renderTravelMonth(monthValue, matches, mode = 'travel', monthlyGuidance = []) {
+function renderTravelMonth(monthValue, matches, monthlyGuidance = []) {
   const section = document.querySelector('#travel-month-section');
   const container = document.querySelector('#travel-month-results');
   const guidance = document.querySelector('#travel-month-guidance');
@@ -949,15 +954,10 @@ function renderTravelMonth(monthValue, matches, mode = 'travel', monthlyGuidance
   }
 
   const [year, month] = monthValue.split('-').map(Number);
-  const isPersonalThreeVictory = mode === 'personalThreeVictory';
-  document.querySelector('#travel-month-title').textContent = traditionalize(isPersonalThreeVictory ? '个人三胜宫' : '出行诀');
-  document.querySelector('.travel-month-note').textContent = traditionalize(
-    isPersonalThreeVictory
-      ? '以本命值符、九天、生门三宫为个人目标，叠合月盘、日盘与时盘；结果按目标宫位列出日期、时辰与方向。'
-      : '本命盘定目标宫，月家盘、日家盘和时家盘逐层筛选；每天按十二个两小时段计算。',
-  );
+  document.querySelector('#travel-month-title').textContent = traditionalize('出行诀');
+  document.querySelector('.travel-month-note').textContent = traditionalize('本命盘定目标宫，月家盘、日家盘和时家盘逐层筛选；每天按十二个两小时段计算。');
   guidance.replaceChildren();
-  guidance.hidden = isPersonalThreeVictory || monthlyGuidance.length === 0;
+  guidance.hidden = monthlyGuidance.length === 0;
   if (!guidance.hidden) {
     const heading = document.createElement('strong');
     heading.textContent = traditionalize('月建旺气方位参考（按农历月）');
@@ -978,16 +978,14 @@ function renderTravelMonth(monthValue, matches, mode = 'travel', monthlyGuidance
   if (matches.length === 0) {
     const empty = document.createElement('p');
     empty.className = 'travel-month-empty';
-    empty.textContent = traditionalize(isPersonalThreeVictory
-      ? '本月没有符合个人三胜宫叠盘条件的日期。'
-      : '本月没有符合天月值符日、九天日或生门日条件的日期。');
+    empty.textContent = traditionalize('本月没有符合天月值符日、九天日或生门日条件的日期。');
     container.replaceChildren(empty);
     return;
   }
 
   const table = document.createElement('table');
   table.className = 'travel-month-table';
-  table.setAttribute('aria-label', traditionalize(isPersonalThreeVictory ? '整月个人三胜宫日期与时段' : '整月出行诀日期与时段'));
+  table.setAttribute('aria-label', traditionalize('整月出行诀日期与时段'));
   const header = document.createElement('tr');
   ['日期', '天月值符日', '九天日', '生门日'].forEach((heading) => {
     const cell = document.createElement('th');
@@ -1332,6 +1330,250 @@ function getVoidBranches(pillar) {
 
 function findPalaceIndex(chart, field, value) {
   return chart[field]?.findIndex((item) => simplify(item) === value) ?? -1;
+}
+
+function getNatalThreeVictoryTargets(chart) {
+  const targets = [
+    { label: '值符', index: findPalaceIndex(chart, '八神', '值符') },
+    { label: '九天', index: findPalaceIndex(chart, '八神', '九天') },
+    { label: '生门', index: findPalaceIndex(chart, '天門', '生门') },
+  ];
+  const missingTargets = targets.filter(({ index }) => index < 0).map(({ label }) => label);
+  if (missingTargets.length > 0) {
+    throw new Error(`命盘未能定位：${missingTargets.join('、')}。请确认此盘已正确排出八神与八门。`);
+  }
+  return targets;
+}
+
+function mergeNatalThreeVictoryTargets(targets) {
+  const merged = new Map();
+  targets.filter(({ index }) => index >= 0).forEach(({ label, index }) => {
+    if (!merged.has(index)) merged.set(index, { index, labels: [] });
+    merged.get(index).labels.push(label);
+  });
+  return [...merged.values()];
+}
+
+async function findNatalThreeVictoryDates(monthValue, natalChart) {
+  const [year, month] = monthValue.split('-').map(Number);
+  const dayCount = new Date(Date.UTC(year, month, 0)).getUTCDate();
+  const natalTargets = mergeNatalThreeVictoryTargets(getNatalThreeVictoryTargets(natalChart));
+  const dates = [];
+  const details = new Map();
+  const natalTargetIndices = new Set(natalTargets.map(({ index }) => index));
+  const directions = PALACES.filter((_, index) => natalTargetIndices.has(index)).map(({ direction }) => direction);
+
+  for (let day = 1; day <= dayCount; day += 1) {
+    const datetime = `${year}${pad(month)}${pad(day)}12`;
+    const annualChart = await generateByChartType('nianjia', datetime);
+    const monthChart = await generateByChartType('yuejia', datetime);
+    const dayChart = await generateByChartType('rijia', datetime);
+    const annualTargets = new Set(mergeNatalThreeVictoryTargets(getNatalThreeVictoryTargets(annualChart)).map(({ index }) => index));
+    const monthTargets = new Set(mergeNatalThreeVictoryTargets(getNatalThreeVictoryTargets(monthChart)).map(({ index }) => index));
+    const dayTargets = new Set(mergeNatalThreeVictoryTargets(getNatalThreeVictoryTargets(dayChart)).map(({ index }) => index));
+    const matchedHours = new Map(directions.map((direction) => [direction, { 2: [], 3: [], 4: [] }]));
+
+    for (let slot = 0; slot < 12; slot += 1) {
+      const centerHour = (slot + 1) * 2 % 24;
+      const startHour = (centerHour + 23) % 24;
+      const endHour = (centerHour + 1) % 24;
+      const timeDatetime = `${year}${pad(month)}${pad(day)}${pad(centerHour)}`;
+      const timeChart = window.Qimen.chartToObject(window.Qimen.generateChartByDatetime(timeDatetime, {
+        定局法: DEFAULT_JU_METHOD,
+        夜子時: DEFAULT_ZI_METHOD,
+      }));
+      const timeTargets = new Set(mergeNatalThreeVictoryTargets(getNatalThreeVictoryTargets(timeChart)).map(({ index }) => index));
+      const timeLabel = `${pad(startHour)}–${pad(endHour)}`;
+
+      const commonTargets = natalTargets.map(({ index }) => index)
+        .filter((index) => dayTargets.has(index) && timeTargets.has(index));
+      if (commonTargets.length === 0) continue;
+      details.set(`${day}|${timeLabel}`, { year: annualChart, month: monthChart, day: dayChart, time: timeChart });
+      const monthMatches = commonTargets.filter((index) => monthTargets.has(index));
+      const annualMatches = monthMatches.filter((index) => annualTargets.has(index));
+      const stars = 2 + Number(monthMatches.length > 0) + Number(annualMatches.length > 0);
+      commonTargets.forEach((index) => {
+        const hours = matchedHours.get(PALACES[index].direction)?.[stars];
+        if (hours && !hours.includes(timeLabel)) hours.push(timeLabel);
+      });
+    }
+
+    if ([...matchedHours.values()].some(({ 2: twoStars, 3: threeStars, 4: fourStars }) => twoStars.length + threeStars.length + fourStars.length > 0)) {
+      dates.push({
+        day,
+        directions: matchedHours,
+      });
+    }
+  }
+
+  return { year, month, directions, dates, details, natalChart };
+}
+
+function renderNatalThreeVictoryDialog(scan, day, timeLabel, direction, stars) {
+  const dialog = document.querySelector('#natal-three-victory-dialog');
+  const body = document.querySelector('#natal-three-victory-dialog-body');
+  const charts = scan.details.get(`${day}|${timeLabel}`);
+  if (!charts) return;
+  const palaceIndex = PALACES.findIndex((palace) => palace.direction === direction);
+  const natalIndices = new Set(mergeNatalThreeVictoryTargets(getNatalThreeVictoryTargets(scan.natalChart)).map(({ index }) => index));
+  document.querySelector('#natal-three-victory-dialog-title').textContent = traditionalize(
+    `${direction}${'★'.repeat(stars)} · ${scan.month}月${day}日 ${timeLabel}`,
+  );
+
+  const layers = [
+    ['时盘', '時盤', charts.time],
+    ['日盘', '日盤', charts.day],
+    ['月盘', '月盤', charts.month],
+    ['年盘', '年盤', charts.year],
+  ];
+  const grids = layers.map(([, title, chart]) => {
+    const targets = new Map(mergeNatalThreeVictoryTargets(getNatalThreeVictoryTargets(chart)).map(({ index, labels }) => [index, labels]));
+    const panel = document.createElement('section');
+    panel.className = 'nsv-chart';
+    const heading = document.createElement('h4');
+    heading.textContent = traditionalize(title);
+    const grid = document.createElement('div');
+    grid.className = 'nsv-grid';
+    PALACES.forEach((palace, index) => {
+      const cell = document.createElement('div');
+      cell.className = 'nsv-cell';
+      const isTarget = targets.has(index);
+      const isOverlap = isTarget && natalIndices.has(index);
+      if (isTarget) cell.classList.add('target');
+      if (isOverlap) cell.classList.add('overlap');
+      if (index === palaceIndex && isTarget) cell.classList.add('focus');
+      const lines = [
+        `${palace.name}`,
+        index === 4 ? '' : simplify(chart.八神?.[index]),
+        simplify(chart.九星?.[index]),
+        index === 4 ? '' : simplify(chart.天門?.[index]),
+        `${simplify(chart.天盤?.[index])} / ${simplify(chart.地盤?.[index])}`,
+      ];
+      lines.forEach((text, lineIndex) => {
+        if (!text) return;
+        const line = document.createElement('span');
+        line.className = lineIndex === 0 ? 'nsv-name' : 'nsv-line';
+        line.textContent = traditionalize(text);
+        cell.append(line);
+      });
+      if (isTarget) {
+        const tag = document.createElement('span');
+        tag.className = 'nsv-tag';
+        tag.textContent = traditionalize(targets.get(index).join('·'));
+        cell.append(tag);
+      }
+      grid.append(cell);
+    });
+    panel.append(heading, grid);
+    return panel;
+  });
+
+  const legend = document.createElement('p');
+  legend.className = 'nsv-legend';
+  legend.textContent = traditionalize('金色＝与本命三胜宫重叠的宫位；深色边框＝本次方位；浅色＝该盘自身的值符、九天、生门所在宫。');
+  const wrap = document.createElement('div');
+  wrap.className = 'nsv-charts';
+  wrap.append(...grids);
+  body.replaceChildren(legend, wrap);
+  if (!dialog.open) dialog.showModal();
+}
+
+function getNatalThreeVictoryDates(monthValue, natalChart) {
+  const natalTargets = mergeNatalThreeVictoryTargets(getNatalThreeVictoryTargets(natalChart))
+    .map(({ index }) => index)
+    .sort((left, right) => left - right);
+  const cacheKey = [monthValue, natalTargets.join(','), DEFAULT_JU_METHOD, DEFAULT_ZI_METHOD].join('|');
+  if (!natalThreeVictoryScanCache.has(cacheKey)) {
+    const scan = findNatalThreeVictoryDates(monthValue, natalChart).catch((error) => {
+      natalThreeVictoryScanCache.delete(cacheKey);
+      throw error;
+    });
+    natalThreeVictoryScanCache.set(cacheKey, scan);
+  }
+  return natalThreeVictoryScanCache.get(cacheKey);
+}
+
+function renderNatalThreeVictory(monthValue, scan) {
+  const section = document.querySelector('#natal-three-victory-section');
+  const container = document.querySelector('#natal-three-victory-results');
+  if (!monthValue || !scan) {
+    section.hidden = true;
+    container.replaceChildren();
+    return;
+  }
+
+  document.querySelector('#natal-three-victory-summary').textContent = traditionalize(`${scan.year}年${scan.month}月 · ${scan.dates.length}天`);
+  section.hidden = false;
+  if (scan.dates.length === 0) {
+    const empty = document.createElement('p');
+    empty.className = 'travel-month-empty';
+    empty.textContent = traditionalize('本月没有符合本命三胜宫条件的时段。');
+    container.replaceChildren(empty);
+    return;
+  }
+
+  const table = document.createElement('table');
+  table.className = 'travel-month-table natal-three-victory-table';
+  table.setAttribute('aria-label', traditionalize(`${scan.month}月本命三胜宫日期与时段`));
+  const starLevelsByDirection = new Map(scan.directions.map((direction) => [
+    direction,
+    [2, 3, 4].filter((stars) => scan.dates.some(({ directions }) => directions.get(direction)?.[stars].length > 0)),
+  ]));
+  const headerRow = document.createElement('tr');
+  const dateHeading = document.createElement('th');
+  dateHeading.scope = 'col';
+  dateHeading.textContent = traditionalize(`${scan.month}月日期`);
+  headerRow.append(dateHeading);
+  scan.directions.forEach((direction) => {
+    starLevelsByDirection.get(direction).forEach((stars) => {
+      const heading = document.createElement('th');
+      heading.scope = 'col';
+      heading.textContent = traditionalize(`${direction}${'★'.repeat(stars)}`);
+      headerRow.append(heading);
+    });
+  });
+  const thead = document.createElement('thead');
+  thead.append(headerRow);
+  const tbody = document.createElement('tbody');
+  scan.dates.forEach(({ day, directions }) => {
+    const row = document.createElement('tr');
+    const dateCell = document.createElement('th');
+    dateCell.scope = 'row';
+    dateCell.textContent = traditionalize(`${day}日`);
+    row.append(dateCell);
+    scan.directions.forEach((direction) => {
+      starLevelsByDirection.get(direction).forEach((stars) => {
+        const cell = document.createElement('td');
+        cell.dataset.label = traditionalize(`${direction}${'★'.repeat(stars)}`);
+        const hours = [...(directions.get(direction)?.[stars] || [])].sort((left, right) => {
+          const leftStart = Number(left.slice(0, 2));
+          const rightStart = Number(right.slice(0, 2));
+          return (leftStart === 23 ? -1 : leftStart) - (rightStart === 23 ? -1 : rightStart);
+        });
+        if (hours.length === 0) {
+          cell.textContent = traditionalize('—');
+        } else {
+          hours.forEach((label, hourIndex) => {
+            if (hourIndex > 0) cell.append('、');
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'nsv-time';
+            button.textContent = traditionalize(label);
+            button.title = traditionalize('查看年、月、日、时盘重叠宫位');
+            button.addEventListener('click', () => renderNatalThreeVictoryDialog(scan, day, label, direction, stars));
+            cell.append(button);
+          });
+        }
+        row.append(cell);
+      });
+    });
+    tbody.append(row);
+  });
+  table.append(thead, tbody);
+  const wrap = document.createElement('div');
+  wrap.className = 'travel-month-table-wrap';
+  wrap.append(table);
+  container.replaceChildren(wrap);
 }
 
 function getSevenStarFormationNames(chart, index) {
@@ -1848,37 +2090,47 @@ const NATAL_DOOR_ROLES = { 开: '事业', 休: '家庭', 生: '财帛', 伤: '�
 
 function getNatalPalaceRoles(chart, index) {
   if (chart.盤型 !== '命盘') return [];
-  const roles = [];
-  const door = simplify(chart.天門?.[index])[0];
-  if (NATAL_DOOR_ROLES[door]) roles.push(NATAL_DOOR_ROLES[door]);
-  const star = simplify(chart.九星?.[index]);
-  if (star.includes('天辅')) roles.push('教育');
-  if (star.includes('天芮')) roles.push('健康');
-
-  const god = simplify(chart.八神?.[index]);
-  if (god.includes('六合')) roles.push('婚姻');
-
   const xunStem = (pillar) => {
     const cycleIndex = GANZHI_CYCLE.findIndex((item) => simplify(item) === simplify(pillar));
     return cycleIndex < 0 ? undefined : XUN_FU_SHOU[GANZHI_CYCLE[cycleIndex - (cycleIndex % 10)]];
   };
   const stemPalace = (layer, stem) => chart[layer]?.findIndex((item) => simplify(item) === stem) ?? -1;
-  const hourStem = simplify(chart.時柱)[0];
-  const yearStem = simplify(chart.年柱)[0];
   const hourHiddenStem = xunStem(chart.時柱);
-  const childStem = hourStem === '甲' ? hourHiddenStem : hourStem;
-  const parentStem = yearStem === '甲' ? hourHiddenStem : yearStem;
-  const monthStem = simplify(chart.月柱)[0];
-  if (index === stemPalace('天盤', childStem)) roles.push('子女');
-  if (index === stemPalace('天盤', parentStem)) roles.push('父母');
-  if (index === stemPalace('天盤', monthStem)) roles.push('兄弟');
-  if (index === stemPalace('地盤', hourHiddenStem)) roles.push('因果');
-  if (index === stemPalace('天盤', xunStem(chart.日柱))) roles.push('元辰');
+  const causalStemIndex = hourHiddenStem ? stemPalace('地盤', hourHiddenStem) : -1;
+  const causalIndex = causalStemIndex === 4 ? 2 : causalStemIndex;
+  const tianruiIndex = chart.九星?.findIndex((star) => simplify(star) === '天芮') ?? -1;
+  if (index === 4 && tianruiIndex >= 0 && tianruiIndex !== 4) return [];
 
-  const horsePalace = VOID_BRANCH_PALACES[getBaziYimaBranch(chart)];
-  const horseIndex = PALACES.findIndex(({ number }) => Number(number) === horsePalace);
-  if (horseIndex >= 0 && index === horseIndex) roles.push('遷移');
-  return roles;
+  const sourceIndexes = [index];
+  if (index === tianruiIndex && index !== 4) sourceIndexes.push(4);
+  const roles = sourceIndexes.flatMap((palaceIndex) => {
+    const palaceRoles = [];
+    const door = simplify(chart.天門?.[palaceIndex])[0];
+    if (NATAL_DOOR_ROLES[door]) palaceRoles.push(NATAL_DOOR_ROLES[door]);
+    const star = simplify(chart.九星?.[palaceIndex]);
+    if (star.includes('天辅')) palaceRoles.push('教育');
+    if (star.includes('天芮')) palaceRoles.push('健康');
+
+    const god = simplify(chart.八神?.[palaceIndex]);
+    if (god.includes('六合')) palaceRoles.push('婚姻');
+
+    const hourStem = simplify(chart.時柱)[0];
+    const yearStem = simplify(chart.年柱)[0];
+    const childStem = hourStem === '甲' ? hourHiddenStem : hourStem;
+    const parentStem = yearStem === '甲' ? hourHiddenStem : yearStem;
+    const monthStem = simplify(chart.月柱)[0];
+    if (palaceIndex === stemPalace('天盤', childStem)) palaceRoles.push('子女');
+    if (palaceIndex === stemPalace('天盤', parentStem)) palaceRoles.push('父母');
+    if (palaceIndex === stemPalace('天盤', monthStem)) palaceRoles.push('兄弟');
+    if (palaceIndex === stemPalace('天盤', xunStem(chart.日柱))) palaceRoles.push('元辰');
+
+    const horsePalace = VOID_BRANCH_PALACES[getBaziYimaBranch(chart)];
+    const horseIndex = PALACES.findIndex(({ number }) => Number(number) === horsePalace);
+    if (horseIndex >= 0 && palaceIndex === horseIndex) palaceRoles.push('遷移');
+    return palaceRoles;
+  });
+  if (index === causalIndex) roles.push('因果');
+  return [...new Set(roles)];
 }
 
 const LIFE_AGE_RING = [7, 6, 3, 0, 1, 2, 5, 8];
@@ -2574,12 +2826,19 @@ async function generateChart(event) {
   const chartType = chartTypeInput.value;
   const selectedHour = monthOnly || yearOnly ? 12 : Number(hourInput.value);
   const datetime = `${year}${month}${day}${pad(selectedHour)}`;
-  const usesMonthlyScan = chartType === 'mingpan' && (travelInput.checked || personalThreeVictoryInput.checked);
+  const usesMonthlyScan = chartType === 'mingpan' && travelInput.checked;
+  const usesNatalThreeVictoryScan = chartType === 'mingpan' && natalThreeVictoryInput.checked;
   const usesEightGodScan = chartType === 'mingpan' && eightGodInput.checked;
   const scanMonth = usesMonthlyScan ? travelMonthInput.value : '';
+  const natalThreeVictoryMonth = usesNatalThreeVictoryScan ? natalThreeVictoryMonthInput.value : '';
   const eightGodMonth = usesEightGodScan ? eightGodMonthInput.value : '';
   if (usesMonthlyScan && hasGeneratedNatalChart && !scanMonth) {
     errorMessage.textContent = traditionalize('请选择要扫描的月份。');
+    errorMessage.hidden = false;
+    return;
+  }
+  if (usesNatalThreeVictoryScan && !natalThreeVictoryMonth) {
+    errorMessage.textContent = traditionalize('请选择本命三胜宫要扫描的月份。');
     errorMessage.hidden = false;
     return;
   }
@@ -2606,7 +2865,11 @@ async function generateChart(event) {
     updateChartTypeControls();
     const monthlyMatches = scanMonth ? await findMonthlyTravelDates(scanMonth, selectedHour, chart) : [];
     const monthlyGuidance = scanMonth && travelInput.checked ? await getMonthlyTravelGuidance(scanMonth) : [];
-    renderTravelMonth(scanMonth, monthlyMatches, personalThreeVictoryInput.checked ? 'personalThreeVictory' : 'travel', monthlyGuidance);
+    renderTravelMonth(scanMonth, monthlyMatches, monthlyGuidance);
+    const natalThreeVictoryScan = natalThreeVictoryMonth
+      ? await getNatalThreeVictoryDates(natalThreeVictoryMonth, chart)
+      : null;
+    renderNatalThreeVictory(natalThreeVictoryMonth, natalThreeVictoryScan);
     const eightGodMatches = eightGodMonth
       ? await getEightGodActivationDates(eightGodMonth, selectedHour, eightGodTargetInput.value)
       : [];
@@ -2623,6 +2886,7 @@ async function generateChart(event) {
 populateHours();
 setDefaults();
 travelMonthInput.value = dateInput.value.slice(0, 7);
+natalThreeVictoryMonthInput.value = dateInput.value.slice(0, 7);
 eightGodMonthInput.value = dateInput.value.slice(0, 7);
 form.addEventListener('submit', generateChart);
 chartTypeInput.addEventListener('change', () => resetOutputAndInputs(chartTypeInput.value));
@@ -2635,26 +2899,38 @@ predictionPersonStemInput.addEventListener('change', () => renderPrediction(last
 travelInput.addEventListener('change', () => {
   updateChartTypeControls();
   document.querySelector('#travel-month-section').hidden = true;
-  document.querySelector('#seven-star-section').hidden = true;
-  if (hasGeneratedNatalChart) generateChart();
-});
-eightGodInput.addEventListener('change', () => {
-  updateChartTypeControls();
-  document.querySelector('#travel-month-section').hidden = true;
+  document.querySelector('#natal-three-victory-section').hidden = true;
   document.querySelector('#eight-god-section').hidden = true;
   document.querySelector('#seven-star-section').hidden = true;
   if (hasGeneratedNatalChart) generateChart();
 });
-personalThreeVictoryInput.addEventListener('change', () => {
+natalThreeVictoryInput.addEventListener('change', () => {
   updateChartTypeControls();
   document.querySelector('#travel-month-section').hidden = true;
+  document.querySelector('#natal-three-victory-section').hidden = true;
+  document.querySelector('#eight-god-section').hidden = true;
+  document.querySelector('#seven-star-section').hidden = true;
+  if (hasGeneratedNatalChart) generateChart();
+});
+const natalThreeVictoryDialog = document.querySelector('#natal-three-victory-dialog');
+document.querySelector('#natal-three-victory-dialog-close').addEventListener('click', () => natalThreeVictoryDialog.close());
+natalThreeVictoryDialog.addEventListener('click', (event) => {
+  if (event.target === natalThreeVictoryDialog) natalThreeVictoryDialog.close();
+});
+
+natalThreeVictoryMonthInput.addEventListener('change', () => {
+  if (chartTypeInput.value === 'mingpan' && natalThreeVictoryInput.checked && hasGeneratedNatalChart) generateChart();
+});
+eightGodInput.addEventListener('change', () => {
+  updateChartTypeControls();
+  document.querySelector('#travel-month-section').hidden = true;
+  document.querySelector('#natal-three-victory-section').hidden = true;
+  document.querySelector('#eight-god-section').hidden = true;
   document.querySelector('#seven-star-section').hidden = true;
   if (hasGeneratedNatalChart) generateChart();
 });
 travelMonthInput.addEventListener('change', () => {
-  if (chartTypeInput.value === 'mingpan'
-    && (travelInput.checked || personalThreeVictoryInput.checked)
-    && hasGeneratedNatalChart) generateChart();
+  if (chartTypeInput.value === 'mingpan' && travelInput.checked && hasGeneratedNatalChart) generateChart();
 });
 eightGodMonthInput.addEventListener('change', () => {
   if (chartTypeInput.value === 'mingpan' && eightGodInput.checked && hasGeneratedNatalChart) generateChart();
@@ -2689,6 +2965,7 @@ function resetOutputAndInputs(chartType) {
   if (chartType) chartTypeInput.value = chartType;
   setDefaults();
   travelMonthInput.value = dateInput.value.slice(0, 7);
+  natalThreeVictoryMonthInput.value = dateInput.value.slice(0, 7);
   eightGodMonthInput.value = dateInput.value.slice(0, 7);
   hasGeneratedNatalChart = false;
   lastRenderedChart = null;
@@ -2699,6 +2976,7 @@ function resetOutputAndInputs(chartType) {
   document.querySelector('#lunar-date-label').hidden = true;
   document.querySelector('#plate-stamp').textContent = traditionalize('时家 · 转盘');
   document.querySelector('#travel-month-section').hidden = true;
+  document.querySelector('#natal-three-victory-section').hidden = true;
   document.querySelector('#seven-star-section').hidden = true;
   document.querySelector('#eight-god-section').hidden = true;
   document.querySelector('#flight-grid').replaceChildren();

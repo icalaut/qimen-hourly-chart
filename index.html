@@ -10,9 +10,9 @@
     <link rel="apple-touch-icon" href="./icon.svg" />
     <link rel="manifest" href="./manifest.webmanifest" />
     <title>奇门遁甲排盘</title>
-    <link rel="stylesheet" href="./src/style.css?v=20261005-daytag2" />
+    <link rel="stylesheet" href="./src/style.css?v=20261005-natal-three-victory-detail" />
     <script src="https://cdn.jsdelivr.net/npm/qimen-dunjia@3.1.0/dist/qimen.standalone.min.js"></script>
-    <script type="module" src="./src/main.js?v=20261005-daytag2"></script>
+    <script type="module" src="./src/main.js?v=20261005-natal-three-victory-detail"></script>
   </head>
   <body>
     <div class="page-shell">
@@ -113,10 +113,10 @@
                   <span>出行诀</span>
                 </label>
               </div>
-              <div class="chart-option" id="personal-three-victory-option" hidden>
-                <label for="personal-three-victory-toggle">
-                  <input id="personal-three-victory-toggle" name="chartMode" value="personalThreeVictory" type="radio" />
-                  <span>个人三胜宫</span>
+              <div class="chart-option" id="natal-three-victory-option" hidden>
+                <label for="natal-three-victory-toggle">
+                  <input id="natal-three-victory-toggle" name="chartMode" value="natalThreeVictory" type="radio" />
+                  <span>本命三胜宫</span>
                 </label>
               </div>
               <div class="chart-option" id="eight-god-option" hidden>
@@ -150,6 +150,10 @@
               <div class="travel-month-option" id="travel-month-option" hidden>
                 <label class="field-label" for="travel-month">扫描月份</label>
                 <input id="travel-month" name="travelMonth" type="month" />
+              </div>
+              <div class="travel-month-option" id="natal-three-victory-settings" hidden>
+                <label class="field-label" for="natal-three-victory-month">本命三胜宫扫描月份</label>
+                <input id="natal-three-victory-month" name="natalThreeVictoryMonth" type="month" />
               </div>
               <div class="travel-month-option" id="eight-god-settings" hidden>
                 <label class="field-label" for="eight-god-target">启动目标八神</label>
@@ -304,6 +308,23 @@
                 <div class="travel-month-guidance" id="travel-month-guidance" hidden></div>
                 <div id="travel-month-results"></div>
               </section>
+
+              <section class="natal-three-victory-section" id="natal-three-victory-section" aria-labelledby="natal-three-victory-title" hidden>
+                <div class="travel-month-heading">
+                  <h3 id="natal-three-victory-title">本命三胜宫</h3>
+                  <span id="natal-three-victory-summary"></span>
+                </div>
+                <p class="travel-month-note">筛选本命、年、月、日、时盘中同宫的三胜目标。日时同宫为★★；年、月盘各再命中一层，最高为★★★★。本功能使用独立算法，不与出行诀混用。</p>
+                <div class="natal-three-victory-results" id="natal-three-victory-results"></div>
+              </section>
+
+              <dialog class="nsv-dialog" id="natal-three-victory-dialog" aria-labelledby="natal-three-victory-dialog-title">
+                <div class="nsv-dialog-head">
+                  <h3 id="natal-three-victory-dialog-title"></h3>
+                  <button type="button" id="natal-three-victory-dialog-close" aria-label="关闭">×</button>
+                </div>
+                <div id="natal-three-victory-dialog-body"></div>
+              </dialog>
 
               <section class="travel-month-section" id="eight-god-section" aria-labelledby="eight-god-title" hidden>
                 <div class="travel-month-heading">
