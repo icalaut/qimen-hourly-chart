@@ -609,3 +609,4 @@ input:focus, select:focus { border-color: var(--forest); box-shadow: 0 0 0 3px r
 .nsv-cell.target { background: #fff8e1; border-color: #e3c36b; }
 .nsv-cell.overlap { background: #ffe08a; border-color: #d19a00; }
 .nsv-cell.focus { border: 2px solid #a14a00; box-shadow: 0 0 0 1px #a14a00; }
+.natal-three-victory-remark { padding: 6px 10px; border-left: 3px solid #d19a00; background: #fff8e1; color: #6b4e00; font-weight: 600; }
