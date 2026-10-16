@@ -20,6 +20,8 @@ ruby -run -e httpd . -p 4173
 
 介面統一使用 Google Fonts 載入的 Noto Sans TC（思源黑體風格），包含表單、九宮盤、數字與結果面板。字體首次載入需要網路；無法載入時依序使用裝置上的 Source Han Sans TC、PingFang TC、Microsoft JhengHei 或無襯線字體。
 
+介面繁體轉換後統一使用地支「丑」，不顯示為「醜」；四柱、時辰、空亡標記與提示文字均適用。
+
 ## 排盤口徑
 
 - 時盤與命盤依賴 `qimen-dunjia` 3.1.x；年、月、日盤使用 `bigfishmarquis-qimen` 的對應獨立引擎。

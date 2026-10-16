@@ -436,7 +436,7 @@ function convertStaticInterface() {
 function loadTraditionalizer() {
   traditionalizerPromise ||= import(OPENCC_URL).then(({ Converter }) => {
     const convert = Converter({ from: 'cn', to: 'tw' });
-    traditionalize = (value) => convert(String(value ?? '—')).replaceAll('醜時', '丑時');
+    traditionalize = (value) => convert(String(value ?? '—')).replaceAll('醜', '丑');
     convertStaticInterface();
     updateChartTypeControls();
   }).catch((error) => {
