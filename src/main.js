@@ -145,6 +145,12 @@ function getBaziYimaBranch(chart) {
   const dayBranch = getBaziDayPillar(chart)?.slice(-1);
   return YIMA_BRANCHES[dayBranch];
 }
+
+function getChartYima(chart) {
+  const isHourChart = chart.盤型 === '时盘';
+  const branch = simplify(isHourChart ? chart.時柱 : chart.日柱).slice(-1);
+  return { branch, branchLabel: isHourChart ? '时支' : '日支', yimaBranch: YIMA_BRANCHES[branch] };
+}
 const OVERALL_PATTERN_NAMES = new Set(['反吟', '伏吟', '五不遇時', '截路空亡']);
 const TIME_ONLY_PATTERN_NAMES = new Set(['五不遇時', '截路空亡']);
 const STAR_HOME_POSITIONS = { 天蓬: 1, 天芮: 2, 天冲: 3, 天辅: 4, 天禽: 5, 天心: 6, 天柱: 7, 天任: 8, 天英: 9 };
@@ -294,7 +300,7 @@ const PREDICTION_TOPICS = {
     { symbol: '九天', role: '升迁机会参考', kind: 'layer', layer: 'god', value: '九天' },
     { symbol: '壬', role: '与九天、驿马同列为变动参考', kind: 'stem', value: '壬' },
     { symbol: '癸', role: '与九天、驿马同列为变动参考', kind: 'stem', value: '癸' },
-    { symbol: '驿马', role: '临马星主变动；依日支定位', kind: 'yima' },
+    { symbol: '驿马', role: '临马星主变动；依时支定位', kind: 'yima' },
     { symbol: '伏吟／反吟', role: '伏吟主不动；反吟主变动', kind: 'patternList' },
     { symbol: '开门宫空亡', role: '若开门克日干且空亡，原文以填实之月为应期参考', kind: 'openDoorVoid' },
   ] },
@@ -1894,13 +1900,12 @@ function getPalaceMarkers(chart) {
         addMarker(index, markerLabel, markerTitle, filledBy.length ? 'void-filled' : 'void');
     });
   });
-  const dayBranch = chart.日柱?.slice(-1);
-  const yimaBranch = YIMA_BRANCHES[dayBranch];
+  const { branch, branchLabel, yimaBranch } = getChartYima(chart);
   const yimaPalaceNumber = VOID_BRANCH_PALACES[yimaBranch];
   const yimaIndex = PALACES.findIndex(({ number }) => Number(number) === yimaPalaceNumber);
   if (yimaIndex >= 0) {
     const yimaPalace = PALACES[yimaIndex];
-    addMarker(yimaIndex, '驿马', `${yimaPalace.direction}${yimaPalace.name}：日支${dayBranch}，驿马在${yimaBranch}`, 'auspicious');
+    addMarker(yimaIndex, '驿马', `${yimaPalace.direction}${yimaPalace.name}：${branchLabel}${branch}，驿马在${yimaBranch}`, 'auspicious');
   }
   PALACES.forEach((palace, index) => {
     const door = simplify(chart.天門?.[index]);
@@ -2637,8 +2642,7 @@ function resolvePredictionReference(chart, reference) {
       specialMatches.push({ palaceIndex: lifeDoorIndex, layer: 'heaven' });
     }
   } else if (reference.kind === 'yima') {
-    const dayBranch = simplify(chart.日柱).slice(-1);
-    const yimaBranch = YIMA_BRANCHES[dayBranch];
+    const { yimaBranch } = getChartYima(chart);
     const palaceNumber = VOID_BRANCH_PALACES[yimaBranch];
     palaceIndex = PALACES.findIndex(({ number }) => Number(number) === palaceNumber);
     if (yimaBranch && palaceIndex >= 0) {
