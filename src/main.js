@@ -555,42 +555,54 @@ function calculateHourlyTianYi(chart) {
   return `${star} · ${landedPalace.direction}${landedPalace.name}`;
 }
 
-function hasOppositeLayer(chart, field, homePositions) {
+function hasLayerPlacement(chart, field, homePositions, opposite = false) {
   const outerPalaces = PALACES.flatMap((palace, index) => {
     const palaceNumber = Number(palace.number);
     if (palaceNumber === 5) return [];
     return [{ palaceNumber, item: simplify(chart[field]?.[index]) }];
   });
-  return outerPalaces.length === 8 && outerPalaces.every(({ palaceNumber, item }) => (
-    homePositions[item] !== undefined && palaceNumber === 10 - homePositions[item]
+  return new Set(outerPalaces.map(({ item }) => item)).size === 8
+    && outerPalaces.every(({ palaceNumber, item }) => (
+      homePositions[item] !== undefined
+      && palaceNumber === (opposite ? 10 - homePositions[item] : homePositions[item])
+    ));
+}
+
+function getLayerFormations(chart) {
+  const earthPositions = {};
+  PALACES.forEach(({ number }, index) => {
+    const stem = simplify(chart.地盤?.[index]);
+    if (number !== '5' && STEMS.includes(stem)) earthPositions[stem] = Number(number);
+  });
+  const layers = [
+    { name: '八门', field: '天門', positions: DOOR_HOME_POSITIONS, basis: '本位宫' },
+    { name: '天干', field: '天盤', positions: earthPositions, basis: '地盘同干所在宫' },
+    { name: '九星', field: '九星', positions: STAR_HOME_POSITIONS, basis: '本位宫' },
+  ];
+  return layers.flatMap(({ name, field, positions, basis }) => (
+    [false, true].flatMap((opposite) => {
+      if (!hasLayerPlacement(chart, field, positions, opposite)) return [];
+      const pattern = opposite ? '反吟' : '伏吟';
+      return [{
+        類: '格局',
+        格: `${name}${pattern}`,
+        吉凶: '凶',
+        宮: null,
+        細節: `${name}外围八宫整层均落在${basis}${opposite ? '的对宫' : ''}；中宫不参与判定`,
+      }];
+    })
   ));
 }
 
 function getOverallFormations(chart, includesHour = true) {
   const formations = window.Qimen.detectPatterns(chart)
     .filter((item) => item.類 === '格局'
+      && !['伏吟', '反吟', '反吟伏吟'].includes(simplify(item.格))
       && (!item.宮 || OVERALL_PATTERN_NAMES.has(item.格))
       && (includesHour || !TIME_ONLY_PATTERN_NAMES.has(item.格)))
     .map((item) => OVERALL_PATTERN_NAMES.has(item.格) ? { ...item, 宮: null } : item);
 
-  const reverseLayers = [
-    hasOppositeLayer(chart, '九星', STAR_HOME_POSITIONS) && '九星',
-    hasOppositeLayer(chart, '天門', DOOR_HOME_POSITIONS) && '八门',
-  ].filter(Boolean);
-  if (reverseLayers.length > 0) {
-    const existingFanYin = formations.find((item) => item.格 === '反吟');
-    const fanYin = existingFanYin || { 類: '格局', 格: '反吟', 吉凶: '凶', 宮: null };
-    fanYin.宮 = null;
-    fanYin.讀法 = `${reverseLayers.join('、')}反吟`;
-    fanYin.細節 = `${reverseLayers.join('与')}整层均落在各自本位宫的对宫`;
-    if (!existingFanYin) formations.push(fanYin);
-  }
-
-  const hasFanYin = formations.some((item) => item.格 === '反吟');
-  const hasFuYin = formations.some((item) => item.格 === '伏吟');
-  if (hasFanYin && hasFuYin) {
-    formations.push({ 類: '格局', 格: '反吟伏吟', 吉凶: '凶', 宮: null, 細節: '本盘同时符合反吟与伏吟条件' });
-  }
+  formations.push(...getLayerFormations(chart));
 
   const zhiShiPosition = chart['天門']?.findIndex((door) => door === chart['值使']) ?? -1;
   if (zhiShiPosition >= 0 && chart['地盤']?.[zhiShiPosition] === '丁') {
@@ -1843,6 +1855,7 @@ function renderEightGodActivation(monthValue, targetGod, matches) {
 
 function getPalaceMarkers(chart) {
   const markers = PALACES.map(() => []);
+  const excludeCenterPatterns = ['年盘', '月盘', '日盘', '时盘'].includes(chart.盤型);
   const addMarker = (index, text, title, type) => {
     if (index < 0 || markers[index].some((marker) => marker.text === text)) return;
     markers[index].push({ text, title, type });
@@ -1908,6 +1921,7 @@ function getPalaceMarkers(chart) {
     addMarker(yimaIndex, '驿马', `${yimaPalace.direction}${yimaPalace.name}：${branchLabel}${branch}，驿马在${yimaBranch}`, 'auspicious');
   }
   PALACES.forEach((palace, index) => {
+    if (excludeCenterPatterns && palace.number === '5') return;
     const door = simplify(chart.天門?.[index]);
     const skyStem = simplify(chart.天盤?.[index]);
     const earthStem = simplify(chart.地盤?.[index]);
@@ -2065,6 +2079,7 @@ function getPalaceMarkers(chart) {
     const palaceNumber = Object.entries(PALACE_NAMES)
       .find(([, name]) => simplify(name) === patternPalace)?.[0];
     const index = PALACES.findIndex(({ number }) => Number(number) === Number(palaceNumber));
+    if (excludeCenterPatterns && palaceNumber === '5') return;
     const relation = simplify(item.關係);
     const text = item.格 === '門迫' ? '門克宮'
       : item.格 === '宮迫' ? '宮克門'
@@ -2651,7 +2666,7 @@ function resolvePredictionReference(chart, reference) {
     }
   } else if (reference.kind === 'patternList') {
     values = (chart.格局列表 || [])
-      .filter(({ 格 }) => ['伏吟', '反吟'].includes(simplify(格)))
+      .filter(({ 格 }) => /^(八门|天干|九星)(伏吟|反吟)$/.test(simplify(格)))
       .map(({ 格 }) => simplify(格));
     if (values.length === 0) values = ['未見伏吟或反吟'];
   } else if (reference.kind === 'openDoorVoid') {
