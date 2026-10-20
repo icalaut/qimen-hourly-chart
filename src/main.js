@@ -11,6 +11,7 @@ const PALACES = [
 ];
 const DOOR_ELEMENTS = { 休: 'water', 死: 'earth', 伤: 'wood', 杜: 'wood', 开: 'metal', 惊: 'metal', 生: 'earth', 景: 'fire' };
 const STEM_ELEMENTS = { 甲: 'wood', 乙: 'wood', 丙: 'fire', 丁: 'fire', 戊: 'earth', 己: 'earth', 庚: 'metal', 辛: 'metal', 壬: 'water', 癸: 'water' };
+const BRANCH_ELEMENTS = { 子: 'water', 丑: 'earth', 寅: 'wood', 卯: 'wood', 辰: 'earth', 巳: 'fire', 午: 'fire', 未: 'earth', 申: 'metal', 酉: 'metal', 戌: 'earth', 亥: 'water' };
 const STAR_ELEMENTS = { 蓬: 'water', 任: 'earth', 冲: 'wood', 辅: 'wood', 英: 'fire', 芮: 'earth', 禽: 'earth', 柱: 'metal', 心: 'metal' };
 const PALACE_ELEMENTS = { 1: 'water', 2: 'earth', 3: 'wood', 4: 'wood', 5: 'earth', 6: 'metal', 7: 'metal', 8: 'earth', 9: 'fire' };
 const ELEMENT_GLYPHS = { wood: '木', fire: '火', earth: '土', metal: '金', water: '水' };
@@ -525,6 +526,9 @@ function makePillar(label, value) {
     characters.forEach((character) => {
       const line = document.createElement('span');
       line.textContent = character;
+      const element = STEM_ELEMENTS[character] || BRANCH_ELEMENTS[character];
+      if (element) line.dataset.element = element;
+      if (character === '丁') line.dataset.stem = character;
       stem.append(line);
     });
   } else {
@@ -1280,6 +1284,7 @@ function makeLayer(className, label, value, matchedPillars = [], longevityStages
         : undefined;
   if (element) row.dataset.element = element;
   const name = document.createElement('span');
+  if (['heaven', 'earth'].includes(className)) name.dataset.stem = normalizedValue;
   if (matchedPillars.length) {
     name.className = `matched-stem ${matchedPillars.map((pillar) => `${pillar}-stem-match`).join(' ')}`;
     name.title = `匹配${matchedPillars.map((pillar) => STEM_MATCH_LABELS[pillar]).join('、')}`;
@@ -2363,6 +2368,7 @@ function renderPalaces(chart) {
           stemCompanion.title = `匹配${tianqinStemMatches.map((pillar) => STEM_MATCH_LABELS[pillar]).join('、')}`;
         }
         stemCompanion.textContent = traditionalize(tianqinStem);
+        stemCompanion.dataset.stem = simplify(tianqinStem);
         const stemElement = STEM_ELEMENTS[simplify(tianqinStem)[0]];
         if (stemElement) stemCompanion.dataset.element = stemElement;
         stemCompanionGroup.append(stemCompanion);

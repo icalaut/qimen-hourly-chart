@@ -179,6 +179,11 @@ input:focus, select:focus { border-color: var(--forest); box-shadow: 0 0 0 3px r
 .pillar-label { color: #829087; font-size: 10px; }
 .pillar-value { color: var(--ink); font-size: 17px; font-weight: 600; }
 .pillar-value-vertical { display: grid; gap: 0; line-height: 1.05; }
+.pillar-value [data-element='wood'] { color: #008f5a; }
+.pillar-value [data-element='fire'] { color: #e60012; }
+.pillar-value [data-element='earth'] { color: #8b5e34; }
+.pillar-value [data-element='metal'] { color: #b18400; }
+.pillar-value [data-element='water'] { color: #1689c7; }
 .chart-frame {
   display: grid;
   grid-template: 11% repeat(3, minmax(0, 1fr)) 11% / 11% repeat(3, minmax(0, 1fr)) 11%;
@@ -443,6 +448,7 @@ input:focus, select:focus { border-color: var(--forest); box-shadow: 0 0 0 3px r
 .layer[data-element='earth'], .frame-shichen[data-element='earth'], .frame-shichen .frame-compass[data-element='earth'], .tianqin-element[data-element='earth'] { color: #8b5e34; }
 .layer[data-element='metal'], .frame-shichen[data-element='metal'], .frame-shichen .frame-compass[data-element='metal'], .tianqin-element[data-element='metal'] { color: #b18400; }
 .layer[data-element='water'], .frame-shichen[data-element='water'], .frame-shichen .frame-compass[data-element='water'], .tianqin-element[data-element='water'] { color: #1689c7; }
+[data-stem='丁'], .matched-stem[data-stem='丁'] { color: #e60012; }
 .chart-footer { padding-top: 17px; }
 .hub-list { display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
 .hub-item { min-height: 57px; display: grid; align-content: center; gap: 4px; padding: 0 10px; border-right: 1px solid var(--line); }
