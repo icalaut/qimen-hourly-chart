@@ -1,10 +1,10 @@
-const CACHE_NAME = 'qimen-time-chart-v90';
+const CACHE_NAME = 'qimen-time-chart-v91';
 const APP_SHELL = [
   './',
   './index.html',
   './manifest.webmanifest',
   './icon.svg',
-  './src/main.js?v=20261020-pillar-elements',
+  './src/main.js?v=20261020-natal-center',
   './src/style.css?v=20261020-bold-palaces',
 ];
 

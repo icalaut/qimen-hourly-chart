@@ -1860,7 +1860,7 @@ function renderEightGodActivation(monthValue, targetGod, matches) {
 
 function getPalaceMarkers(chart) {
   const markers = PALACES.map(() => []);
-  const excludeCenterPatterns = ['年盘', '月盘', '日盘', '时盘'].includes(chart.盤型);
+  const excludeCenterPatterns = ['命盘', '年盘', '月盘', '日盘', '时盘'].includes(chart.盤型);
   const addMarker = (index, text, title, type) => {
     if (index < 0 || markers[index].some((marker) => marker.text === text)) return;
     markers[index].push({ text, title, type });
